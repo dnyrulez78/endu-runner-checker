@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="it" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENDU - Verifica Iscrizioni Corsa su Strada</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%22><text y=%2226%22 font-size=%2228%22>🏃</text></svg>">
+</head>
+<body class="h-full flex flex-col text-slate-800 antialiased font-sans">
+    
+    <!-- Top Navigation / Brand -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+                    <i data-lucide="activity" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-slate-900 leading-none">ENDU Runner Scanner</h1>
+                    <p class="text-xs text-slate-500 mt-0.5">Verifica iscrizioni Corsa su Strada</p>
+                </div>
+            </div>
+
+            <!-- Calendar Cache Status Badge -->
+            <div class="flex items-center space-x-3 text-xs">
+                <div id="calendarStatusPill" class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                    <span class="w-2 h-2 rounded-full bg-slate-400" id="cacheIndicator"></span>
+                    <span id="cacheText">Controllo calendario...</span>
+                </div>
+                <button id="btnRefreshCalendar" title="Forza aggiornamento del calendario gare da ENDU" class="p-2 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-slate-100 transition-colors flex items-center space-x-1.5">
+                    <i data-lucide="refresh-cw" class="w-4 h-4" id="refreshIcon"></i>
+                    <span class="hidden md:inline font-medium">Aggiorna Gare</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+        <!-- Info / Introduction Banner -->
+        <div class="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+                <i data-lucide="trophy" class="w-72 h-72"></i>
+            </div>
+            <div class="relative z-10 max-w-2xl space-y-2">
+                <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 text-xs font-semibold tracking-wide uppercase border border-emerald-500/30">
+                    <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                    <span>Scansione Diretta API ENDU</span>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Verifica Iscrizioni Gare Future</h2>
+                <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                    Inserisci il Nome e Cognome del podista oppure il Codice Società per scansionare istantaneamente
+                    le manifestazioni running dei prossimi mesi su <span class="text-emerald-300 font-medium">endu.net</span>.
+                </p>
+            </div>
+        </div>
+
+        <!-- Search Form Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+            <form id="searchForm" class="space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    
+                    <!-- Cognome -->
+                    <div class="space-y-1.5">
+                        <label for="lastName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                            Cognome <span class="text-rose-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="user" class="w-4 h-4"></i>
+                            </div>
+                            <input type="text" id="lastName" name="lastName" placeholder="es. Rossi"
+                                class="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-medium text-slate-900 placeholder:text-slate-400">
+                        </div>
+                    </div>
+
+                    <!-- Nome -->
+                    <div class="space-y-1.5">
+                        <label for="firstName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                            Nome
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="user" class="w-4 h-4"></i>
+                            </div>
+                            <input type="text" id="firstName" name="firstName" placeholder="es. Mario"
+                                class="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-medium text-slate-900 placeholder:text-slate-400">
+                        </div>
+                    </div>
+
+                    <!-- Codice / Nome Società -->
+                    <div class="space-y-1.5">
+                        <label for="teamCode" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                            Codice o Società <span class="text-xs font-normal text-slate-400">(opzionale)</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="shield" class="w-4 h-4"></i>
+                            </div>
+                            <input type="text" id="teamCode" name="teamCode" placeholder="es. CE907 o Canegrate"
+                                class="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-medium text-slate-900 placeholder:text-slate-400">
+                        </div>
+                    </div>
+
+                    <!-- Orizzonte Temporale (Mesi) -->
+                    <div class="space-y-1.5">
+                        <label for="months" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                            Orizzonte Temporale
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="calendar" class="w-4 h-4"></i>
+                            </div>
+                            <select id="months" name="months"
+                                class="w-full pl-10 pr-9 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-medium text-slate-900 appearance-none cursor-pointer">
+                                <option value="1">Prossimo 1 mese</option>
+                                <option value="2">Prossimi 2 mesi</option>
+                                <option value="3">Prossimi 3 mesi</option>
+                                <option value="5" selected>Prossimi 5 mesi (Predefinito)</option>
+                                <option value="6">Prossimi 6 mesi</option>
+                                <option value="12">Prossimi 12 mesi (1 anno)</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 border-t border-slate-100">
+                    <p class="text-xs text-slate-400 flex items-center space-x-1.5">
+                        <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                        <span>Filtro automatico: solo gare di <b>Corsa su Strada</b> (esclusi trail e triathlon).</span>
+                    </p>
+                    <div class="flex items-center space-x-3 w-full sm:w-auto">
+                        <button type="button" id="btnClear"
+                            class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold text-sm transition-colors">
+                            Cancella
+                        </button>
+                        <button type="submit" id="btnSubmit"
+                            class="flex-1 sm:flex-initial px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold text-sm shadow-md shadow-emerald-600/25 transition-all flex items-center justify-center space-x-2">
+                            <i data-lucide="search" class="w-4 h-4" id="submitIcon"></i>
+                            <span id="submitLabel">Verifica Iscrizioni</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Scanning Progress Panel (Visible while scanning) -->
+        <div id="progressPanel" class="hidden bg-white rounded-2xl shadow-sm border border-emerald-200 p-6 space-y-4 transition-all">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex items-center space-x-3">
+                    <div class="relative flex items-center justify-center">
+                        <span class="animate-ping absolute inline-flex h-4 w-4 rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-600"></span>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900" id="progressTitle">Scansione in corso...</h3>
+                        <p class="text-xs text-slate-500" id="progressSubtitle">Verifica concorrente delle manifestazioni ENDU</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200" id="progressPercentage">
+                        0%
+                    </span>
+                    <button type="button" id="btnAbortScan"
+                        class="px-3 py-1 rounded-lg text-xs font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 transition-colors">
+                        Interrompi
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                <div id="progressBar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-2.5 rounded-full transition-all duration-200" style="width: 0%"></div>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-slate-500">
+                <span id="progressCheckedText">0 gare verificate</span>
+                <span id="progressMatchesText" class="font-semibold text-emerald-700">0 iscrizioni trovate</span>
+            </div>
+        </div>
+
+        <!-- Notification / Error Box -->
+        <div id="errorPanel" class="hidden rounded-2xl bg-rose-50 border border-rose-200 p-4 text-rose-800 text-sm flex items-start space-x-3">
+            <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0 mt-0.5"></i>
+            <div class="flex-1">
+                <h4 class="font-bold text-rose-900 text-sm">Si è verificato un errore</h4>
+                <p class="text-xs mt-0.5 text-rose-700" id="errorMessageText"></p>
+            </div>
+            <button type="button" onclick="document.getElementById('errorPanel').classList.add('hidden')" class="text-rose-500 hover:text-rose-800">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <!-- Results Section Header -->
+        <div id="resultsHeader" class="hidden flex items-center justify-between pt-2">
+            <div>
+                <h3 class="text-xl font-extrabold text-slate-900 tracking-tight" id="resultsCountTitle">Risultati della Ricerca</h3>
+                <p class="text-xs text-slate-500 mt-0.5" id="resultsSubTitle"></p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button type="button" id="btnExport" title="Copia riepilogo negli appunti"
+                    class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-medium flex items-center space-x-1.5 shadow-sm transition-colors">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span>Copia Risultati</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Container (Cards) -->
+        <div id="resultsContainer" class="space-y-4"></div>
+
+        <!-- Empty State (No Results) -->
+        <div id="emptyState" class="hidden bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
+                <i data-lucide="search-x" class="w-8 h-8"></i>
+            </div>
+            <h4 class="text-base font-bold text-slate-800">Nessuna Iscrizione Trovata</h4>
+            <p class="text-xs text-slate-500 max-w-md mx-auto" id="emptyStateDesc">
+                Nessun atleta corrispondente ai criteri inseriti risulta iscritto alle manifestazioni di Corsa su Strada nell'intervallo temporale selezionato.
+            </p>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
+        <p>ENDU Runner Registration Scanner &bull; Uso Personale Locale &bull; Connessione diretta a endu.net</p>
+    </footer>
+
+    <!-- App JavaScript -->
+    <script src="/static/app.js"></script>
+    <script>
+        // Inizializza le icone Lucide
+        lucide.createIcons();
+    </script>
+</body>
+</html>
