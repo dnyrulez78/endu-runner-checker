@@ -11,6 +11,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from backend.endu_client import EnduClient
+from backend.fidal_client import FidalClient, FidalSearchResponse
 from backend.models import CalendarStatusResponse, PastResultsSearchResponse, SearchResponse
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -18,8 +19,8 @@ logger = logging.getLogger("endu_tool")
 
 app = FastAPI(
     title="ENDU Road Running Registration Checker & Results",
-    description="Applicazione locale per verificare le iscrizioni e consultare lo storico risultati alle gare ENDU di Corsa su Strada.",
-    version="2.0.0"
+    description="Applicazione locale per verificare le iscrizioni, consultare lo storico risultati ENDU e l'archivio carriera FIDAL/TDS di Corsa su Strada.",
+    version="3.0.0"
 )
 
 # Abilita CORS per uso locale
@@ -33,6 +34,7 @@ app.add_middleware(
 
 # Istanza del client ENDU singleton con semaforo a 8 connessioni contemporanee
 endu_client = EnduClient(concurrency_limit=8, cache_ttl_seconds=3600)
+fidal_client = FidalClient(cache_ttl_seconds=3600)
 
 # Monta le risorse statiche (CSS, JS)
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "frontend", "static")
@@ -81,6 +83,8 @@ async def search_registrations(
     last_name: Optional[str] = Query(None, description="Cognome dell'atleta"),
     team_code: Optional[str] = Query(None, description="Codice o nome della società sportiva"),
     months: int = Query(5, ge=1, le=12, description="Numero di mesi di orizzonte temporale"),
+    exact_date: Optional[str] = Query(None, description="Data specifica (YYYY-MM-DD)"),
+    event_name: Optional[str] = Query(None, description="Nome o parola chiave della manifestazione"),
     force_refresh: bool = Query(False, description="Forza il refresh del calendario eventi")
 ):
     """
@@ -90,6 +94,8 @@ async def search_registrations(
     clean_first = first_name.strip() if first_name else ""
     clean_last = last_name.strip() if last_name else ""
     clean_team = team_code.strip() if team_code else ""
+    clean_date = exact_date.strip() if exact_date else ""
+    clean_event = event_name.strip() if event_name else ""
 
     if not clean_first and not clean_last and not clean_team:
         raise HTTPException(
@@ -103,6 +109,8 @@ async def search_registrations(
             last_name=clean_last or None,
             team_code=clean_team or None,
             months=months,
+            exact_date=clean_date or None,
+            event_name=clean_event or None,
             force_refresh=force_refresh
         )
     except Exception as e:
@@ -116,6 +124,8 @@ async def search_registrations_stream(
     last_name: Optional[str] = Query(None),
     team_code: Optional[str] = Query(None),
     months: int = Query(5, ge=1, le=12),
+    exact_date: Optional[str] = Query(None),
+    event_name: Optional[str] = Query(None),
     force_refresh: bool = Query(False)
 ):
     """
@@ -125,6 +135,8 @@ async def search_registrations_stream(
     clean_first = first_name.strip() if first_name else ""
     clean_last = last_name.strip() if last_name else ""
     clean_team = team_code.strip() if team_code else ""
+    clean_date = exact_date.strip() if exact_date else ""
+    clean_event = event_name.strip() if event_name else ""
 
     if not clean_first and not clean_last and not clean_team:
         async def err_generator():
@@ -141,6 +153,8 @@ async def search_registrations_stream(
             last_name=clean_last or None,
             team_code=clean_team or None,
             months=months,
+            exact_date=clean_date or None,
+            event_name=clean_event or None,
             force_refresh=force_refresh
         ):
             yield f"data: {json.dumps(packet, ensure_ascii=False)}\n\n"
@@ -166,7 +180,9 @@ async def search_past_results(
     last_name: Optional[str] = Query(None, description="Cognome dell'atleta"),
     team_code: Optional[str] = Query(None, description="Codice o nome della società sportiva"),
     months: int = Query(12, ge=1, le=24, description="Numero di mesi passati da scansionare"),
-    year: Optional[int] = Query(None, ge=2024, le=2030, description="Anno solare specifico (opzionale)"),
+    year: Optional[int] = Query(None, ge=2010, le=2030, description="Anno solare specifico (opzionale)"),
+    exact_date: Optional[str] = Query(None, description="Data specifica esatta (YYYY-MM-DD)"),
+    event_name: Optional[str] = Query(None, description="Nome della manifestazione specifica"),
     force_refresh: bool = Query(False, description="Forza il refresh delle gare passate")
 ):
     """
@@ -176,6 +192,8 @@ async def search_past_results(
     clean_first = first_name.strip() if first_name else ""
     clean_last = last_name.strip() if last_name else ""
     clean_team = team_code.strip() if team_code else ""
+    clean_date = exact_date.strip() if exact_date else ""
+    clean_event = event_name.strip() if event_name else ""
 
     if not clean_first and not clean_last and not clean_team:
         raise HTTPException(
@@ -190,6 +208,8 @@ async def search_past_results(
             team_code=clean_team or None,
             months=months,
             year=year,
+            exact_date=clean_date or None,
+            event_name=clean_event or None,
             force_refresh=force_refresh
         )
     except Exception as e:
@@ -203,7 +223,9 @@ async def search_past_results_stream(
     last_name: Optional[str] = Query(None),
     team_code: Optional[str] = Query(None),
     months: int = Query(12, ge=1, le=24),
-    year: Optional[int] = Query(None, ge=2024, le=2030),
+    year: Optional[int] = Query(None, ge=2010, le=2030),
+    exact_date: Optional[str] = Query(None),
+    event_name: Optional[str] = Query(None),
     force_refresh: bool = Query(False)
 ):
     """
@@ -213,6 +235,8 @@ async def search_past_results_stream(
     clean_first = first_name.strip() if first_name else ""
     clean_last = last_name.strip() if last_name else ""
     clean_team = team_code.strip() if team_code else ""
+    clean_date = exact_date.strip() if exact_date else ""
+    clean_event = event_name.strip() if event_name else ""
 
     if not clean_first and not clean_last and not clean_team:
         async def err_generator():
@@ -230,6 +254,8 @@ async def search_past_results_stream(
             team_code=clean_team or None,
             months=months,
             year=year,
+            exact_date=clean_date or None,
+            event_name=clean_event or None,
             force_refresh=force_refresh
         ):
             yield f"data: {json.dumps(packet, ensure_ascii=False)}\n\n"
@@ -243,6 +269,36 @@ async def search_past_results_stream(
             "X-Accel-Buffering": "no"
         }
     )
+
+
+@app.get("/api/fidal/search", response_model=FidalSearchResponse)
+async def search_fidal_athlete(
+    last_name: str = Query(..., description="Cognome dell'atleta"),
+    first_name: Optional[str] = Query(None, description="Nome dell'atleta (opzionale)"),
+    year: Optional[int] = Query(None, ge=2000, le=2030, description="Anno specifico (opzionale)"),
+    city_or_race: Optional[str] = Query(None, description="Città o nome gara (opzionale)")
+):
+    """
+    Interroga l'archivio federale FIDAL per recuperare la carriera e i risultati ufficiali
+    di un atleta (incluse tutte le gare cronometrate da TDS, ENDU, SDAM, WinningTime, ecc.).
+    """
+    clean_last = last_name.strip()
+    clean_first = first_name.strip() if first_name else None
+    clean_kw = city_or_race.strip() if city_or_race else None
+
+    if not clean_last:
+        raise HTTPException(status_code=400, detail="Inserire il cognome dell'atleta.")
+
+    try:
+        return await fidal_client.search_athlete(
+            last_name=clean_last,
+            first_name=clean_first,
+            year=year,
+            city_or_race=clean_kw
+        )
+    except Exception as e:
+        logger.error(f"Errore nella ricerca FIDAL: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 def open_browser_delayed(url: str, delay: float = 1.0):

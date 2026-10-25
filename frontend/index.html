@@ -43,18 +43,6 @@
     <!-- Main Container -->
     <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
-        <!-- Mode Navigation Tabs -->
-        <div class="flex items-center space-x-2 p-1.5 bg-slate-200/80 rounded-2xl w-fit shadow-inner">
-            <button type="button" id="tabFuture" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm bg-white text-emerald-900 flex items-center space-x-2">
-                <i data-lucide="calendar-check-2" class="w-4 h-4 text-emerald-600"></i>
-                <span>Iscrizioni Future</span>
-            </button>
-            <button type="button" id="tabResults" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center space-x-2">
-                <i data-lucide="trophy" class="w-4 h-4 text-slate-500"></i>
-                <span>Storico Risultati & Tempi</span>
-            </button>
-        </div>
-
         <!-- Info / Introduction Banner -->
         <div id="bannerCard" class="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden transition-all duration-300">
             <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
@@ -74,7 +62,30 @@
         </div>
 
         <!-- Search Form Card -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-6">
+            
+            <!-- Mode Switcher (Scegli se cercare Iscrizioni Future o Storico Risultati) -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                <div>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Cosa vuoi cercare?</span>
+                    <span class="text-xs text-slate-600 font-medium" id="modeSubText">Scegli se verificare le iscrizioni future o consultare i risultati passati</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 bg-slate-100 rounded-2xl w-full sm:w-auto shadow-inner">
+                    <button type="button" id="tabFuture" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm bg-white text-emerald-900 flex items-center justify-center space-x-2">
+                        <i data-lucide="calendar-check-2" class="w-4 h-4 text-emerald-600"></i>
+                        <span>Iscrizioni Future</span>
+                    </button>
+                    <button type="button" id="tabResults" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center justify-center space-x-2">
+                        <i data-lucide="trophy" class="w-4 h-4 text-slate-500"></i>
+                        <span>Risultati ENDU</span>
+                    </button>
+                    <button type="button" id="tabFidal" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center justify-center space-x-2">
+                        <i data-lucide="award" class="w-4 h-4 text-slate-500"></i>
+                        <span>Archivio FIDAL / TDS</span>
+                    </button>
+                </div>
+            </div>
+
             <form id="searchForm" class="space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     
@@ -139,6 +150,52 @@
                         </div>
                     </div>
 
+                </div>
+
+                <!-- Filtri di Precisione Opzionali (Data Specifica o Nome Gara) -->
+                <div class="pt-4 border-t border-slate-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center space-x-1.5">
+                            <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-emerald-600"></i>
+                            <span>Filtro Mirato (Opzionale: cerca per data o nome gara)</span>
+                        </span>
+                        <span class="text-[11px] text-slate-400 hidden sm:inline">Restringe la ricerca a un singolo giorno o a una manifestazione precisa</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Data Specifica -->
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <label for="exactDate" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                    Data Specifica
+                                </label>
+                                <span class="text-[11px] text-slate-400">es. giorno esatto della gara</span>
+                            </div>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="calendar-days" class="w-4 h-4"></i>
+                                </div>
+                                <input type="date" id="exactDate" name="exactDate"
+                                    class="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-medium text-slate-900">
+                            </div>
+                        </div>
+
+                        <!-- Nome Gara / Parola Chiave -->
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <label for="eventName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                    Nome Gara o Città
+                                </label>
+                                <span class="text-[11px] text-slate-400">parola chiave</span>
+                            </div>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="flag" class="w-4 h-4"></i>
+                                </div>
+                                <input type="text" id="eventName" name="eventName" placeholder="es. Moonlight, Roma, Passatore..."
+                                    class="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-medium text-slate-900 placeholder:text-slate-400">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Action Buttons -->
@@ -242,7 +299,7 @@
 
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
-        <p>ENDU Runner Scanner &bull; Uso Personale Locale &bull; Nessun dato permanente salvato &bull; Connessione diretta a endu.net</p>
+        <p>ENDU Runner Scanner &bull; Uso Personale Locale &bull; Nessun dato permanente salvato &bull; Connessione diretta a endu.net e fidal.it</p>
     </footer>
 
     <!-- App JavaScript -->

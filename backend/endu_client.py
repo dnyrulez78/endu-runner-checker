@@ -136,23 +136,41 @@ class EnduClient:
     async def get_road_running_events(
         self,
         months: int = 5,
+        exact_date: Optional[str] = None,
+        event_name: Optional[str] = None,
         force_refresh: bool = False
     ) -> Tuple[List[Dict], str, str]:
         """
         Recupera tutte le manifestazioni future di Corsa su Strada da ENDU.
+        Se specificata una data esatta (YYYY-MM-DD), interroga solo quella data.
         """
-        today = datetime.date.today()
-        end_date = add_months(today, months)
-        date_from_str = today.strftime("%Y-%m-%d")
-        date_to_str = end_date.strftime("%Y-%m-%d")
+        if exact_date:
+            date_from_str = exact_date
+            date_to_str = exact_date
+        else:
+            today = datetime.date.today()
+            end_date = add_months(today, months)
+            date_from_str = today.strftime("%Y-%m-%d")
+            date_to_str = end_date.strftime("%Y-%m-%d")
 
         now = time.time()
         lock = self._get_cache_lock()
-        async with lock:
-            if not force_refresh and self._cached_events is not None:
-                if (now - self._cache_timestamp) < self.cache_ttl_seconds:
-                    if self._cache_date_from == date_from_str and self._cache_date_to == date_to_str:
-                        return self._cached_events, date_from_str, date_to_str
+        # Se non filtriamo per data esatta, possiamo sfruttare la cache generale
+        if not exact_date:
+            async with lock:
+                if not force_refresh and self._cached_events is not None:
+                    if (now - self._cache_timestamp) < self.cache_ttl_seconds:
+                        if self._cache_date_from == date_from_str and self._cache_date_to == date_to_str:
+                            events = self._cached_events
+                            if event_name:
+                                target = event_name.strip().lower()
+                                events = [
+                                    ev for ev in events
+                                    if target in (ev.get("name") or "").lower()
+                                    or target in (ev.get("slug") or "").lower()
+                                    or target in (ev.get("location", {}).get("city") or "").lower()
+                                ]
+                            return events, date_from_str, date_to_str
 
         collected_events: List[Dict] = []
         sequence_token: Optional[str] = None
@@ -190,11 +208,21 @@ class EnduClient:
                     break
                 sequence_token = last_token
 
-        async with lock:
-            self._cached_events = collected_events
-            self._cache_timestamp = time.time()
-            self._cache_date_from = date_from_str
-            self._cache_date_to = date_to_str
+        if not exact_date:
+            async with lock:
+                self._cached_events = collected_events
+                self._cache_timestamp = time.time()
+                self._cache_date_from = date_from_str
+                self._cache_date_to = date_to_str
+
+        if event_name:
+            target = event_name.strip().lower()
+            collected_events = [
+                ev for ev in collected_events
+                if target in (ev.get("name") or "").lower()
+                or target in (ev.get("slug") or "").lower()
+                or target in (ev.get("location", {}).get("city") or "").lower()
+            ]
 
         return collected_events, date_from_str, date_to_str
 
@@ -327,6 +355,8 @@ class EnduClient:
         last_name: Optional[str] = None,
         team_code: Optional[str] = None,
         months: int = 5,
+        exact_date: Optional[str] = None,
+        event_name: Optional[str] = None,
         force_refresh: bool = False
     ) -> AsyncGenerator[Dict, None]:
         """Scansione live via SSE per gare future."""
@@ -334,6 +364,8 @@ class EnduClient:
         try:
             events, date_from, date_to = await self.get_road_running_events(
                 months=months,
+                exact_date=exact_date,
+                event_name=event_name,
                 force_refresh=force_refresh
             )
         except Exception as e:
@@ -406,12 +438,16 @@ class EnduClient:
         last_name: Optional[str] = None,
         team_code: Optional[str] = None,
         months: int = 5,
+        exact_date: Optional[str] = None,
+        event_name: Optional[str] = None,
         force_refresh: bool = False
     ) -> SearchResponse:
         """Scansione sincrona REST per gare future."""
         start_time = time.time()
         events, date_from, date_to = await self.get_road_running_events(
             months=months,
+            exact_date=exact_date,
+            event_name=event_name,
             force_refresh=force_refresh
         )
 
@@ -449,28 +485,44 @@ class EnduClient:
         self,
         months: int = 12,
         year: Optional[int] = None,
+        exact_date: Optional[str] = None,
+        event_name: Optional[str] = None,
         force_refresh: bool = False
     ) -> Tuple[List[Dict], str, str]:
         """
         Recupera le manifestazioni passate di Corsa su Strada con classifiche digitali (results=dynamic).
+        Supporta data esatta o ricerca per nome manifestazione.
         """
-        today = datetime.date.today()
-        if year:
+        if exact_date:
+            date_from_str = exact_date
+            date_to_str = exact_date
+        elif year:
             date_from_str = f"{year}-01-01"
-            # Se l'anno è l'anno corrente, limita a oggi, altrimenti 31 dicembre
+            today = datetime.date.today()
             date_to_str = today.strftime("%Y-%m-%d") if year == today.year else f"{year}-12-31"
         else:
+            today = datetime.date.today()
             date_to_str = today.strftime("%Y-%m-%d")
             start_date = add_months(today, -months)
             date_from_str = start_date.strftime("%Y-%m-%d")
 
         now = time.time()
         lock = self._get_cache_lock()
-        async with lock:
-            if not force_refresh and self._cached_past_events is not None:
-                if (now - self._past_cache_timestamp) < self.cache_ttl_seconds:
-                    if self._past_cache_date_from == date_from_str and self._past_cache_date_to == date_to_str:
-                        return self._cached_past_events, date_from_str, date_to_str
+        if not exact_date:
+            async with lock:
+                if not force_refresh and self._cached_past_events is not None:
+                    if (now - self._past_cache_timestamp) < self.cache_ttl_seconds:
+                        if self._past_cache_date_from == date_from_str and self._past_cache_date_to == date_to_str:
+                            events = self._cached_past_events
+                            if event_name:
+                                target = event_name.strip().lower()
+                                events = [
+                                    ev for ev in events
+                                    if target in (ev.get("name") or "").lower()
+                                    or target in (ev.get("slug") or "").lower()
+                                    or target in (ev.get("location", {}).get("city") or "").lower()
+                                ]
+                            return events, date_from_str, date_to_str
 
         collected_events: List[Dict] = []
         sequence_token: Optional[str] = None
@@ -506,11 +558,21 @@ class EnduClient:
                     break
                 sequence_token = last_token
 
-        async with lock:
-            self._cached_past_events = collected_events
-            self._past_cache_timestamp = time.time()
-            self._past_cache_date_from = date_from_str
-            self._past_cache_date_to = date_to_str
+        if not exact_date:
+            async with lock:
+                self._cached_past_events = collected_events
+                self._past_cache_timestamp = time.time()
+                self._past_cache_date_from = date_from_str
+                self._past_cache_date_to = date_to_str
+
+        if event_name:
+            target = event_name.strip().lower()
+            collected_events = [
+                ev for ev in collected_events
+                if target in (ev.get("name") or "").lower()
+                or target in (ev.get("slug") or "").lower()
+                or target in (ev.get("location", {}).get("city") or "").lower()
+            ]
 
         return collected_events, date_from_str, date_to_str
 
@@ -682,6 +744,8 @@ class EnduClient:
         team_code: Optional[str] = None,
         months: int = 12,
         year: Optional[int] = None,
+        exact_date: Optional[str] = None,
+        event_name: Optional[str] = None,
         force_refresh: bool = False
     ) -> AsyncGenerator[Dict, None]:
         """Scansione live via SSE per risultati storici in gare passate."""
@@ -690,6 +754,8 @@ class EnduClient:
             events, date_from, date_to = await self.get_past_running_events_with_results(
                 months=months,
                 year=year,
+                exact_date=exact_date,
+                event_name=event_name,
                 force_refresh=force_refresh
             )
         except Exception as e:
@@ -700,12 +766,17 @@ class EnduClient:
             return
 
         total_events = len(events)
+        period_label = (
+            f"Data {exact_date}" if exact_date 
+            else (f"Gara '{event_name}'" if event_name 
+            else (f"Anno {year}" if year else f"Ultimi {months} mesi"))
+        )
         yield {
             "type": "init",
             "total": total_events,
             "date_from": date_from,
             "date_to": date_to,
-            "period": f"Anno {year}" if year else f"Ultimi {months} mesi"
+            "period": period_label
         }
 
         if total_events == 0:
@@ -763,6 +834,8 @@ class EnduClient:
         team_code: Optional[str] = None,
         months: int = 12,
         year: Optional[int] = None,
+        exact_date: Optional[str] = None,
+        event_name: Optional[str] = None,
         force_refresh: bool = False
     ) -> PastResultsSearchResponse:
         """Scansione sincrona REST per risultati storici."""
@@ -770,6 +843,8 @@ class EnduClient:
         events, date_from, date_to = await self.get_past_running_events_with_results(
             months=months,
             year=year,
+            exact_date=exact_date,
+            event_name=event_name,
             force_refresh=force_refresh
         )
 

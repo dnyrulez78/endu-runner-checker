@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Riferimenti elementi Tab e Banner
     const tabFuture = document.getElementById("tabFuture");
     const tabResults = document.getElementById("tabResults");
+    const tabFidal = document.getElementById("tabFidal");
+    const modeSubText = document.getElementById("modeSubText");
     const bannerTitle = document.getElementById("bannerTitle");
     const bannerDesc = document.getElementById("bannerDesc");
     const bannerBadgeText = document.getElementById("bannerBadgeText");
@@ -21,6 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const teamCodeInput = document.getElementById("teamCode");
     const timePeriodSelect = document.getElementById("timePeriodSelect");
     const timePeriodLabel = document.getElementById("timePeriodLabel");
+    const exactDateInput = document.getElementById("exactDate");
+    const eventNameInput = document.getElementById("eventName");
 
     // Pulsanti
     const btnSubmit = document.getElementById("btnSubmit");
@@ -75,18 +79,42 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
 
     const PAST_PERIODS = [
-        { label: "Ultimi 3 mesi", value: "3" },
-        { label: "Ultimi 6 mesi", value: "6" },
-        { label: "Ultimi 12 mesi (1 anno - Predefinito)", value: "12", selected: true },
-        { label: "Ultimi 24 mesi (2 anni)", value: "24" },
-        { label: "Anno 2026", value: "year_2026" },
-        { label: "Anno 2025", value: "year_2025" },
-        { label: "Anno 2024", value: "year_2024" }
+        { label: "Ultimi 12 mesi (Predefinito)", value: "12", selected: true },
+        { label: "Ultimi 24 mesi (2 anni)", value: "24" }
     ];
+    // Aggiunge tutti gli anni dal corrente a ritroso fino al 2014 (12+ anni di storico)
+    for (let yr = 2026; yr >= 2014; yr--) {
+        PAST_PERIODS.push({ label: `Anno ${yr}`, value: `year_${yr}` });
+    }
+    PAST_PERIODS.push({ label: "Ultimi 6 mesi", value: "6" });
+    PAST_PERIODS.push({ label: "Ultimi 3 mesi", value: "3" });
+
+    const FIDAL_PERIODS = [
+        { label: "Tutta la carriera (Tutti gli anni)", value: "all", selected: true }
+    ];
+    for (let yr = 2026; yr >= 2014; yr--) {
+        FIDAL_PERIODS.push({ label: `Solo Anno ${yr}`, value: `year_${yr}` });
+    }
 
     // Inizializza interfaccia
     setupMode("future");
     checkCalendarStatus();
+
+    // Se l'utente imposta una data nel passato mentre è su 'future', passa automaticamente a 'results'
+    if (exactDateInput) {
+        exactDateInput.addEventListener("change", () => {
+            if (exactDateInput.value) {
+                const parts = exactDateInput.value.split("-");
+                if (parts.length === 3) {
+                    const selYear = parseInt(parts[0], 10);
+                    const currentYear = new Date().getFullYear();
+                    if (selYear < currentYear && currentMode === "future") {
+                        setupMode("results");
+                    }
+                }
+            }
+        });
+    }
 
     // Gestione cambio Tab
     tabFuture.addEventListener("click", () => {
@@ -99,15 +127,28 @@ document.addEventListener("DOMContentLoaded", () => {
         setupMode("results");
     });
 
+    if (tabFidal) {
+        tabFidal.addEventListener("click", () => {
+            if (currentMode === "fidal" || isScanning) return;
+            setupMode("fidal");
+        });
+    }
+
     function setupMode(mode) {
         currentMode = mode;
         clearResults();
         hideError();
 
+        // Reset classi tab
+        const inactiveTabClass = "px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center justify-center space-x-2";
+        const activeTabClass = "px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm bg-white text-emerald-900 flex items-center justify-center space-x-2";
+
+        tabFuture.className = mode === "future" ? activeTabClass : inactiveTabClass;
+        tabResults.className = mode === "results" ? activeTabClass : inactiveTabClass;
+        if (tabFidal) tabFidal.className = mode === "fidal" ? activeTabClass : inactiveTabClass;
+
         if (mode === "future") {
-            // Stile tab attivo
-            tabFuture.className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm bg-white text-emerald-900 flex items-center space-x-2";
-            tabResults.className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center space-x-2";
+            if (modeSubText) modeSubText.textContent = "Modalità attiva: verifica se l'atleta è già iscritto alle prossime gare su ENDU";
             
             // Aggiorna banner
             bannerTitle.textContent = "Verifica Iscrizioni Gare Future";
@@ -120,22 +161,34 @@ document.addEventListener("DOMContentLoaded", () => {
             submitIcon.setAttribute("data-lucide", "search");
 
             populateTimePeriods(FUTURE_PERIODS);
-        } else {
-            // Stile tab risultati attivo
-            tabResults.className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm bg-white text-emerald-900 flex items-center space-x-2";
-            tabFuture.className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center space-x-2";
+        } else if (mode === "results") {
+            if (modeSubText) modeSubText.textContent = "Modalità attiva: consulta i risultati e tempi cronometrici nelle gare passate su ENDU";
 
             // Aggiorna banner
-            bannerTitle.textContent = "Storico Risultati & Classifiche";
+            bannerTitle.textContent = "Storico Risultati & Classifiche ENDU";
             bannerDesc.innerHTML = 'Cerca in quali gare passate ha partecipato l\'atleta e visualizza tempi ufficiali, real-time e piazzamenti. <span class="text-emerald-300 font-medium">Nessun login richiesto</span>: accesso pubblico alle classifiche ENDU.';
             bannerBadgeText.textContent = "Classifiche Ufficiali ENDU";
-            timePeriodLabel.textContent = "Periodo Gare Passate";
+            timePeriodLabel.textContent = "Anno o Periodo Gara";
             filterNoticeText.innerHTML = "Accesso pubblico diretto alle <b>classifiche digitali ufficiali</b> (tempi real-time e piazzamenti).";
 
-            submitLabel.textContent = "Cerca Risultati Storici";
+            submitLabel.textContent = "Cerca Risultati ENDU";
             submitIcon.setAttribute("data-lucide", "trophy");
 
             populateTimePeriods(PAST_PERIODS);
+        } else if (mode === "fidal") {
+            if (modeSubText) modeSubText.textContent = "Modalità attiva: carriera ufficiale FIDAL (copre tutte le gare storiche TDS, ENDU, SDAM, ecc.)";
+
+            // Aggiorna banner
+            bannerTitle.textContent = "Carriera & Risultati Ufficiali FIDAL (TDS & Altre)";
+            bannerDesc.innerHTML = 'Recupera l\'albo d\'oro ufficiale di tutte le mezze maratone, maratone e 10km FIDAL dell\'atleta (comprese gare storiche cronometrate da <b>TDS</b> come Vicenza e Cittadella negli ultimi 15 anni).';
+            bannerBadgeText.textContent = "Albo d'Oro Federale FIDAL";
+            timePeriodLabel.textContent = "Filtro Anno Carriera";
+            filterNoticeText.innerHTML = "Accesso all'<b>archivio storico ufficiale FIDAL.it</b>: tutte le gare competitive certificate.";
+
+            submitLabel.textContent = "Cerca Carriera FIDAL";
+            submitIcon.setAttribute("data-lucide", "award");
+
+            populateTimePeriods(FIDAL_PERIODS);
         }
         lucide.createIcons();
     }
@@ -205,6 +258,8 @@ document.addEventListener("DOMContentLoaded", () => {
         firstNameInput.value = "";
         lastNameInput.value = "";
         teamCodeInput.value = "";
+        if (exactDateInput) exactDateInput.value = "";
+        if (eventNameInput) eventNameInput.value = "";
         timePeriodSelect.selectedIndex = currentMode === "future" ? 3 : 2;
         clearResults();
         hideError();
@@ -251,20 +306,23 @@ document.addEventListener("DOMContentLoaded", () => {
         btnRefreshCalendar.disabled = scanning;
         tabFuture.disabled = scanning;
         tabResults.disabled = scanning;
+        if (tabFidal) tabFidal.disabled = scanning;
 
         if (scanning) {
             submitLabel.textContent = "Scansione in corso...";
             submitIcon.setAttribute("data-lucide", "loader-2");
             submitIcon.classList.add("animate-spin");
         } else {
-            submitLabel.textContent = currentMode === "future" ? "Verifica Iscrizioni" : "Cerca Risultati Storici";
-            submitIcon.setAttribute("data-lucide", currentMode === "future" ? "search" : "trophy");
+            submitLabel.textContent = currentMode === "future" 
+                ? "Verifica Iscrizioni" 
+                : (currentMode === "fidal" ? "Cerca Carriera FIDAL" : "Cerca Risultati ENDU");
+            submitIcon.setAttribute("data-lucide", currentMode === "future" ? "search" : (currentMode === "fidal" ? "award" : "trophy"));
             submitIcon.classList.remove("animate-spin");
         }
         lucide.createIcons();
     }
 
-    // Submit del form con SSE Stream
+    // Submit del form con SSE Stream (per ENDU) o REST (per FIDAL)
     searchForm.addEventListener("submit", (e) => {
         e.preventDefault();
         hideError();
@@ -272,6 +330,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const first = firstNameInput.value.trim();
         const last = lastNameInput.value.trim();
         const team = teamCodeInput.value.trim();
+        const exactDate = exactDateInput ? exactDateInput.value.trim() : "";
+        const eventName = eventNameInput ? eventNameInput.value.trim() : "";
         const periodValue = timePeriodSelect.value;
 
         // Validazione minima: almeno un campo con almeno 2 lettere
@@ -287,6 +347,53 @@ document.addEventListener("DOMContentLoaded", () => {
         clearResults();
         setScanningState(true);
 
+        // --- MODALITÀ ARCHIVIO FIDAL ---
+        if (currentMode === "fidal") {
+            const fidalParams = new URLSearchParams();
+            fidalParams.append("last_name", last);
+            if (first) fidalParams.append("first_name", first);
+            if (periodValue && periodValue.startsWith("year_")) {
+                fidalParams.append("year", periodValue.replace("year_", ""));
+            }
+            if (eventName) fidalParams.append("city_or_race", eventName);
+
+            progressPanel.classList.remove("hidden");
+            progressTitle.textContent = "Ricerca scheda atleta su fidal.it...";
+            progressCheckedText.textContent = "Consultazione graduatorie ufficiali...";
+            progressMatchesText.textContent = "";
+            progressBar.style.width = "75%";
+            progressPercentage.textContent = "75%";
+
+            fetch(`/api/fidal/search?${fidalParams.toString()}`)
+                .then(async (res) => {
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.detail || "Errore durante la ricerca FIDAL");
+                    return data;
+                })
+                .then((data) => {
+                    setScanningState(false);
+                    progressBar.style.width = "100%";
+                    progressPercentage.textContent = "100%";
+                    setTimeout(() => progressPanel.classList.add("hidden"), 500);
+
+                    if (!data.success || !data.athlete || !data.athlete.results || data.athlete.results.length === 0) {
+                        emptyStateTitle.textContent = "Nessuna Gara Trovata su FIDAL";
+                        emptyStateDesc.textContent = data.message || `Nessuna gara ufficiale FIDAL trovata per '${last}' con i filtri selezionati.`;
+                        emptyState.classList.remove("hidden");
+                        resultsHeader.classList.add("hidden");
+                    } else {
+                        renderFidalResults(data.athlete, data.elapsed_seconds);
+                    }
+                })
+                .catch((err) => {
+                    setScanningState(false);
+                    progressPanel.classList.add("hidden");
+                    showError(err.message || "Errore di connessione con l'archivio federale FIDAL.");
+                });
+            return;
+        }
+
+        // --- MODALITÀ GARE FUTURE E RISULTATI ENDU (SSE) ---
         progressPanel.classList.remove("hidden");
         progressTitle.textContent = currentMode === "future" 
             ? "Connessione al calendario gare future ENDU..."
@@ -300,6 +407,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (first) params.append("first_name", first);
         if (last) params.append("last_name", last);
         if (team) params.append("team_code", team);
+        if (exactDate) params.append("exact_date", exactDate);
+        if (eventName) params.append("event_name", eventName);
 
         let streamUrl = "";
         if (currentMode === "future") {
@@ -393,12 +502,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 }, 1200);
 
                 if (foundMatches.length === 0) {
+                    const exactDate = exactDateInput ? exactDateInput.value.trim() : "";
+                    const eventName = eventNameInput ? eventNameInput.value.trim() : "";
+                    let specificFilterNote = "";
+                    if (exactDate && eventName) {
+                        specificFilterNote = ` in data ${formatDateItalian(exactDate)} per la manifestazione "${eventName}"`;
+                    } else if (exactDate) {
+                        specificFilterNote = ` per la data specifica ${formatDateItalian(exactDate)}`;
+                    } else if (eventName) {
+                        specificFilterNote = ` per la manifestazione "${eventName}"`;
+                    }
+
                     emptyStateTitle.textContent = currentMode === "future" 
                         ? "Nessuna Iscrizione Trovata"
                         : "Nessun Risultato in Classifica Trovato";
                     emptyStateDesc.textContent = currentMode === "future"
-                        ? "Nessun atleta corrispondente ai criteri inseriti risulta iscritto a manifestazioni future nell'intervallo selezionato."
-                        : "Nessun risultato di gara trovato per l'atleta nelle classifiche ENDU dell'intervallo selezionato.";
+                        ? `Nessun atleta corrispondente ai criteri inseriti risulta iscritto${specificFilterNote || " a manifestazioni future nell'intervallo selezionato"}.`
+                        : `Nessun risultato di gara trovato per l'atleta nelle classifiche ENDU${specificFilterNote || " dell'intervallo selezionato"}.`;
                     emptyState.classList.remove("hidden");
                     resultsHeader.classList.add("hidden");
                 } else {
@@ -419,6 +539,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    function formatDateItalian(isoStr) {
+        if (!isoStr) return "";
+        const parts = isoStr.split("-");
+        if (parts.length === 3) {
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+        return isoStr;
+    }
+
     function updateResultsCount(elapsed) {
         const count = foundMatches.length;
         const entity = currentMode === "future" ? "Gara Trovata" : "Gara con Risultati";
@@ -426,10 +555,22 @@ document.addEventListener("DOMContentLoaded", () => {
         resultsCountTitle.textContent = `${count} ${count === 1 ? entity : entities}`;
         
         const periodText = timePeriodSelect.options[timePeriodSelect.selectedIndex]?.text || "";
+        const exactDate = exactDateInput ? exactDateInput.value.trim() : "";
+        const eventName = eventNameInput ? eventNameInput.value.trim() : "";
+
+        let filterDesc = periodText;
+        if (exactDate && eventName) {
+            filterDesc = `la data ${formatDateItalian(exactDate)} e gara "${eventName}"`;
+        } else if (exactDate) {
+            filterDesc = `la data ${formatDateItalian(exactDate)}`;
+        } else if (eventName) {
+            filterDesc = `la gara "${eventName}" (${periodText})`;
+        }
+
         if (elapsed) {
-            resultsSubTitle.textContent = `Scansione completata in ${elapsed}s su ${periodText}`;
+            resultsSubTitle.textContent = `Scansione completata in ${elapsed}s su ${filterDesc}`;
         } else {
-            resultsSubTitle.textContent = `Risultati aggiornati in tempo reale per ${periodText}`;
+            resultsSubTitle.textContent = `Risultati aggiornati in tempo reale per ${filterDesc}`;
         }
     }
 
@@ -606,17 +747,114 @@ document.addEventListener("DOMContentLoaded", () => {
         lucide.createIcons();
     }
 
+    // Render Risultati Ufficiali Carriera FIDAL
+    function renderFidalResults(athlete, elapsed) {
+        resultsContainer.innerHTML = "";
+        foundMatches = athlete.results;
+
+        const count = athlete.results.length;
+        resultsCountTitle.textContent = `${count} ${count === 1 ? 'Gara Ufficiale Trovata' : 'Gare Ufficiali Trovate'}`;
+        resultsSubTitle.textContent = `Carriera FIDAL estratta in ${elapsed}s per ${athlete.name} (${athlete.society})`;
+        resultsHeader.classList.remove("hidden");
+        emptyState.classList.add("hidden");
+
+        // 1. Scheda Profilo Atleta
+        const profileCard = document.createElement("div");
+        profileCard.className = "bg-gradient-to-r from-slate-900 to-indigo-950 rounded-2xl p-6 text-white shadow-md space-y-4";
+        
+        let pbBadges = "";
+        if (athlete.personal_bests && athlete.personal_bests.length > 0) {
+            pbBadges = `
+                <div class="pt-3 border-t border-slate-700/60">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Primati Personali Ufficiali (FIDAL):</span>
+                    <div class="flex flex-wrap gap-2">
+                        ${athlete.personal_bests.map(pb => `
+                            <span class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs">
+                                <span class="text-slate-300 font-semibold">${escapeHtml(pb.event)}:</span>
+                                <span class="font-bold font-mono text-emerald-400 text-sm">${escapeHtml(pb.time)}</span>
+                                <span class="text-[11px] text-slate-400">(${escapeHtml(pb.city)} ${escapeHtml(pb.year)})</span>
+                            </span>
+                        `).join("")}
+                    </div>
+                </div>
+            `;
+        }
+
+        profileCard.innerHTML = `
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold text-xs uppercase border border-indigo-500/30">Scheda Atleta Federale</span>
+                        ${athlete.birth_date ? `<span class="text-xs text-slate-400 font-medium">&bull; Nato il ${escapeHtml(athlete.birth_date)}</span>` : ''}
+                    </div>
+                    <h3 class="text-2xl font-black tracking-tight text-white">${escapeHtml(athlete.name)}</h3>
+                    <p class="text-sm text-slate-300 font-medium">Società: <span class="text-emerald-300 font-bold">${escapeHtml(athlete.society)}</span></p>
+                </div>
+                <div class="shrink-0">
+                    <a href="${escapeHtml(athlete.fidal_url)}" target="_blank" rel="noopener noreferrer"
+                        class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-semibold flex items-center space-x-2 transition-all">
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                        <span>Scheda Ufficiale su FIDAL.it</span>
+                    </a>
+                </div>
+            </div>
+            ${pbBadges}
+        `;
+        resultsContainer.appendChild(profileCard);
+
+        // 2. Elenco Gare Ufficiali
+        athlete.results.forEach(r => {
+            const row = document.createElement("div");
+            row.className = "bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-slate-300 transition-all";
+
+            row.innerHTML = `
+                <div class="flex items-start sm:items-center space-x-4">
+                    <div class="w-14 h-14 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-col items-center justify-center shrink-0">
+                        <span class="text-[10px] font-bold uppercase text-emerald-800">${escapeHtml(r.date)}</span>
+                        <span class="text-base font-black text-emerald-950 font-mono">${escapeHtml(String(r.year))}</span>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+                            <span class="font-bold text-slate-900 text-base">${escapeHtml(r.city)}</span>
+                            <span class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-100">${escapeHtml(r.discipline)}</span>
+                            ${r.category ? `<span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-xs font-semibold">${escapeHtml(r.category)}</span>` : ''}
+                        </div>
+                        <p class="text-xs text-slate-500">Piazzamento ufficiale: <strong class="text-slate-800">${escapeHtml(r.rank_cleaned || r.rank)}</strong></p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4 shrink-0 sm:text-right">
+                    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                        <span class="block text-[10px] uppercase font-bold text-slate-400">Tempo Ufficiale</span>
+                        <span class="text-xl font-mono font-black text-emerald-600">${escapeHtml(r.time)}</span>
+                    </div>
+                </div>
+            `;
+            resultsContainer.appendChild(row);
+        });
+
+        lucide.createIcons();
+    }
+
     // Copia riepilogo testuale
     btnExport.addEventListener("click", () => {
         if (foundMatches.length === 0) return;
 
-        let summary = currentMode === "future" ? `=== ISCRIZIONI FUTURE ENDU ===\n` : `=== RISULTATI STORICI GARE ENDU ===\n`;
-        summary += `Criteri: Nome: ${firstNameInput.value || '-'} | Cognome: ${lastNameInput.value || '-'} | Società: ${teamCodeInput.value || '-'}\n`;
-        summary += `Totale manifestazioni trovate: ${foundMatches.length}\n\n`;
+        let summary = "";
+        if (currentMode === "fidal") {
+            summary = `=== CARRIERA ATLETA FIDAL (fidal.it) ===\n`;
+            summary += `Atleta: ${lastNameInput.value} ${firstNameInput.value || ''}\n`;
+            summary += `Totale gare trovate: ${foundMatches.length}\n\n`;
+            foundMatches.forEach((r, idx) => {
+                summary += `${idx + 1}. [${r.full_date || r.date + '/' + r.year}] ${r.discipline} a ${r.city} - Tempo: ${r.time} - Piazzamento: ${r.rank_cleaned || r.rank} (${r.category})\n`;
+            });
+        } else if (currentMode === "future") {
+            summary = `=== ISCRIZIONI FUTURE ENDU ===\n`;
+            summary += `Criteri: Nome: ${firstNameInput.value || '-'} | Cognome: ${lastNameInput.value || '-'} | Società: ${teamCodeInput.value || '-'}\n`;
+            summary += `Totale manifestazioni trovate: ${foundMatches.length}\n\n`;
 
-        foundMatches.forEach((ev, idx) => {
-            summary += `${idx + 1}. ${ev.name} (${ev.date_formatted}) - ${ev.location_formatted}\n`;
-            if (currentMode === "future") {
+            foundMatches.forEach((ev, idx) => {
+                summary += `${idx + 1}. ${ev.name} (${ev.date_formatted}) - ${ev.location_formatted}\n`;
                 ev.entrants.forEach(ent => {
                     summary += `   • Atleta: ${ent.full_name}`;
                     if (ent.bib) summary += ` | Pettorale: #${ent.bib}`;
@@ -625,7 +863,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     summary += `\n`;
                 });
                 summary += `   Verifica ENDU: ${ev.verify_url}\n\n`;
-            } else {
+            });
+        } else {
+            summary = `=== RISULTATI STORICI GARE ENDU ===\n`;
+            summary += `Criteri: Nome: ${firstNameInput.value || '-'} | Cognome: ${lastNameInput.value || '-'} | Società: ${teamCodeInput.value || '-'}\n`;
+            summary += `Totale manifestazioni trovate: ${foundMatches.length}\n\n`;
+
+            foundMatches.forEach((ev, idx) => {
+                summary += `${idx + 1}. ${ev.name} (${ev.date_formatted}) - ${ev.location_formatted}\n`;
                 ev.results.forEach(res => {
                     summary += `   • Gara: ${res.race_name} | Atleta: ${res.full_name}\n`;
                     summary += `     Tempo Ufficiale: ${res.official_time || '-'} | Posizione Assoluta: ${res.absolute_position ? res.absolute_position + '°' : '-'}\n`;
@@ -633,8 +878,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (res.team_name) summary += `     Società: ${res.team_name}\n`;
                 });
                 summary += `   Classifica ENDU: ${ev.results_url}\n\n`;
-            }
-        });
+            });
+        }
 
         navigator.clipboard.writeText(summary).then(() => {
             const originalText = btnExport.innerHTML;

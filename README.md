@@ -1,30 +1,37 @@
-# 🏃 ENDU Road Running Checker & Results (v2.0)
+# 🏃 ENDU Road Running Checker, Results & FIDAL/TDS Archive (v3.0)
 
 Applicazione web locale moderna, veloce e pulita (backend Python + frontend HTML5/Tailwind CSS) per:
 1. **Verificare a quali manifestazioni future di Corsa su Strada** (road running) presenti sulla piattaforma [ENDU](https://www.endu.net) un atleta o una società risulta iscritto.
-2. **Consultare lo storico dei risultati e tempi di gara** ottenuti nelle manifestazioni passate (fino a 2 anni), con tempi ufficiali, real time, posizione assoluta e di categoria, distacchi e link alla classifica ufficiale.
+2. **Consultare lo storico dei risultati e tempi di gara su ENDU**, con filtri mirati per data specifica e nome gara/città, con storico a ritroso fino a oltre 10 anni (dal 2010 ad oggi).
+3. **Interrogare l'Archivio Carriera Ufficiale FIDAL & gare storiche TDS**, risolvendo il recupero di tutte le manifestazioni non presenti su ENDU (cronometrate da TDS, TDS-Live, SDAM, WinningTime, Icron), visualizzando la scheda atleta federale, la società di appartenenza e i Primati Personali (PB).
 
 <p align="center">
-  <img src="assets/screenshot.png" alt="Anteprima Interfaccia ENDU Runner Scanner" width="900" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" />
+  <img src="assets/screenshot.png" alt="Anteprima Interfaccia ENDU Runner Scanner v3.0" width="900" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" />
 </p>
 
 ---
 
-## 🌟 Novità Versione 2.0 & Caratteristiche Principali
+## 🌟 Novità Versione 3.0 & Caratteristiche Principali
 
-- **Doppia Modalità con Schede**:
+- **Tripla Modalità con Schede Dedicate**:
   - **Iscrizioni Future**: Scansiona il calendario futuro per verificare la presenza dell'atleta o della squadra.
-  - **Storico Risultati & Classifiche**: Cerca in quali gare passate l'atleta ha tagliato il traguardo e mostra i tempi ufficiali e i piazzamenti.
-- **Nessun Login Richiesto**: L'accesso alle classifiche digitali ufficiali e alle liste iscritti avviene in modalità pubblica tramite le API native di ENDU.
-- **Orizzonte Temporale Flessibile**:
-  - *Gare future*: configurabile da 1 a 12 mesi (default 5 mesi).
-  - *Storico risultati*: ultimi 3, 6, 12, 24 mesi o anno solare specifico (2026, 2025, 2024).
+  - **Risultati ENDU**: Cerca in quali gare passate l'atleta ha tagliato il traguardo e mostra i tempi ufficiali e i piazzamenti.
+  - **Archivio FIDAL / TDS (Novità v3.0)**: Recupera la carriera agonistica ufficiale dell'atleta (Mezze Maratone, 10km, Maratone) e include tutte le manifestazioni cronometrate da **TDS**, **SDAM** o **WinningTime** fin dal 2010.
+- **Filtro Mirato per Nome Gara o Città (Novità v3.0)**:
+  - Consente di restringere la scansione a una singola manifestazione o località (es. digitando `jesolo` vengono scansionate solo le gare di Jesolo in 1-2 secondi anziché centinaia di eventi).
+- **Filtro per Data Specifica (Novità v3.0)**:
+  - Possibilità di inserire il giorno esatto di una gara (es. `25/05/2024`) per interrogare unicamente quell'evento.
+- **Archivio Storico Esteso fino al 2010**:
+  - Ricerca a ritroso fino a 15 anni per consultare qualsiasi edizione passata.
+- **Scheda Atleta Federale & Primati Personali (PB)**:
+  - Nella scheda FIDAL/TDS vengono evidenziati categoria, società sportiva, anno di nascita e i record personali (PB) certificati su ogni distanza.
+- **Nessun Login Richiesto**: L'accesso ai risultati digitali ufficiali e alle liste iscritti avviene in modalità pubblica on-demand.
 - **Filtro Esclusivo Corsa su Strada**: Interroga unicamente le manifestazioni `discipline: road_running` escludendo automaticamente trail running, triathlon, ciclismo e nuoto.
 - **Alte Prestazioni & Nessun Blocco**: Chiamate asincrone concorrenti con `httpx` gestite da un `asyncio.Semaphore(8)` per verificare centinaia di manifestazioni in pochissimi secondi.
 - **Barra di Avanzamento Real-Time (SSE)**: La scansione trasmette aggiornamenti in tempo reale via Server-Sent Events; ogni risultato trovato compare all'istante a schermo.
 - **Caching Intelligente in Memoria**: Il calendario viene memorizzato temporaneamente in RAM per evitare chiamate ridondanti.
-- **Nessun Database Permanente**: Rispetta la privacy, non memorizza anagrafiche sul disco; le verifiche avvengono in diretta on-demand.
-- **Dettagli Completi e Link Diretti**: Visualizza data, località, pettorale, tempo ufficiale, real time, posizione assoluta, categoria, genere, distacco e link diretti sia alla pagina evento che alla classifica ufficiale ENDU.
+- **Privacy & Nessun Database Permanente**: Rispetta la privacy, non memorizza anagrafiche sul disco; le verifiche avvengono in diretta on-demand.
+- **Esportazione Risultati**: Pulsante rapido per copiare il riepilogo testuale formattato degli arrivi negli appunti.
 
 ---
 
@@ -32,23 +39,24 @@ Applicazione web locale moderna, veloce e pulita (backend Python + frontend HTML
 
 ```text
 C:\ENDU-Tool\
-├── app.py                   # Entry point FastAPI e server web locale
+├── app.py                   # Entry point FastAPI e server web locale (v3.0)
 ├── requirements.txt         # Dipendenze Python (fastapi, uvicorn, httpx)
 ├── avvia_app.bat            # Script di avvio rapido con doppio clic (Windows)
 ├── README.md                # Documentazione e guida operativa
 ├── assets\
-│   └── screenshot.png       # Screenshot dell'interfaccia utente
+│   └── screenshot.png       # Screenshot aggiornato dell'interfaccia utente
 ├── backend\
 │   ├── __init__.py
 │   ├── endu_client.py       # Motore asincrono, cache in memoria e chiamate ad ENDU
+│   ├── fidal_client.py      # Client archivio atleti FIDAL, TDS e primati personali
 │   └── models.py            # Schemi dati Pydantic per validazione e tipizzazione
 ├── frontend\
-│   ├── index.html           # Interfaccia grafica moderna e reattiva
+│   ├── index.html           # Interfaccia grafica reattiva a 3 schede con filtri mirati
 │   └── static\
 │       ├── app.js           # Logica client-side, gestione SSE e render delle card
 │       └── style.css        # Stili e animazioni personalizzate
 └── tests\
-    └── test_api.py          # Suite di test automatizzati degli endpoint
+    └── test_api.py          # Suite di 11 test automatizzati per tutti gli endpoint
 ```
 
 ---
@@ -108,44 +116,58 @@ Apri il tuo browser preferito e vai su:
 
 ## 🎯 Come Eseguire una Ricerca
 
-Nell'interfaccia web puoi alternare tra due modalità tramite le schede in alto:
+Nell'interfaccia web puoi alternare tra tre modalità tramite le schede in alto:
 
 ### 1. Scheda "Iscrizioni Future"
 1. Inserisci il **Cognome** (obbligatorio, es. `Rossi`, `Aiello`) e facoltativamente il **Nome**.
 2. **Codice o Società (opzionale)**: per filtrare la squadra o cercare tutti gli atleti del team.
 3. Seleziona l'orizzonte temporale (predefinito: **5 mesi**).
-4. Clicca su **Verifica Iscrizioni**: visualizzerai in tempo reale le manifestazioni a cui l'atleta risulta iscritto con il relativo pettorale assegnato.
+4. *(Opzionale)* Inserisci una data specifica o una parola chiave per la gara.
+5. Clicca su **Verifica Iscrizioni**: visualizzerai in tempo reale le manifestazioni a cui l'atleta risulta iscritto con il relativo pettorale assegnato.
 
-### 2. Scheda "Storico Risultati & Tempi" (Novità v2.0)
+### 2. Scheda "Risultati ENDU"
 1. Inserisci il **Cognome** e/o il **Nome** del podista.
-2. Seleziona l'intervallo storico desiderato (es. *Ultimi 12 mesi*, *Ultimi 24 mesi*, o anno solare *2025*, *2024*).
-3. Clicca su **Cerca Risultati Storici**: visualizzerai tutte le gare concluse dall'atleta con:
+2. Seleziona l'intervallo storico desiderato (es. *Ultimi 12 mesi*, *Ultimi 24 mesi*, o qualsiasi anno dal *2010* al *2026*).
+3. *(Opzionale ma consigliato)* Inserisci il **Nome Gara o Città** (es. `Jesolo`) per limitare la scansione ai soli eventi pertinenti e ottenere i risultati all'istante.
+4. Clicca su **Cerca Risultati Storici**: visualizzerai tutte le gare concluse dall'atleta con:
    - **Tempo ufficiale e Real time**
    - **Posizione assoluta** all'arrivo
    - **Posizione di categoria e di genere**
    - **Distacco dal primo classificato**
    - Link diretto alla **classifica ufficiale ENDU** per consultare intertempi e graduatorie complete.
 
+### 3. Scheda "Archivio FIDAL / TDS" (Novità v3.0)
+1. Inserisci il **Cognome** (es. `Marchesan`) e facoltativamente il **Nome** (es. `Danny`).
+2. *(Opzionale)* Filtra per anno solare o per città/gara.
+3. Clicca su **Consulta Archivio FIDAL / TDS**:
+   - Visualizzerai la **scheda ufficiale dell'atleta** con data di nascita, categoria e società di tesseramento.
+   - Il box **Primati Personali (PB)** certificati su 10km, Maratonina, Maratona.
+   - L'elenco cronologico di tutte le gare ufficiali disputate, incluse le gare cronometrate da **TDS** (come le storiche mezze maratone di Vicenza o Cittadella) che non sono reperibili su ENDU.
+   - Link diretto alla scheda atleta sul portale federale `fidal.it`.
+
 ---
 
-## 🛡️ Note Tecniche sul Reverse Engineering di ENDU
+## 🛡️ Note Tecniche sulle Sorgenti Dati
 
-- **Endpoint Calendario Eventi**:
+- **API Calendario Eventi ENDU**:
   `GET https://www.endu.net/api/events?dateFrom={start}&dateTo={end}&discipline=road_running&pageSize=500&sort=date.from`
-- **Endpoint Verifica Iscritti Manifestazione**:
+- **API Iscritti ENDU**:
   `GET https://www.endu.net/api/editions/{event_id}/entrants?firstName=...&lastName=...&teamCode=...`
-- **Endpoint Classifiche e Risultati Ufficiali**:
-  - Impostazioni gara: `GET https://www.endu.net/api/results/events/{event_id}/settings`
+- **API Risultati ENDU**:
+  - Settings gara: `GET https://www.endu.net/api/results/events/{event_id}/settings`
   - Risultati atleti: `GET https://www.endu.net/api/results?editionId={edition_id}&raceId={race_id}&categoryId={cat_id}&optionId={opt_id}&searchText={search_text}`
-- **Gestione Rate Limit**: L'uso di un semaforo a 8 connessioni contemporanee evita di saturare la connessione o generare allarmi lato server, garantendo una scansione ad alte prestazioni in pochi secondi.
+- **Archivio Federale FIDAL & TDS**:
+  - Ricerca anagrafica: `POST https://www.fidal.it/result.php` con parametro `cerca`
+  - Estrazione profilo e graduatorie: analisi diretta asincrona della scheda atleta ufficiale `https://www.fidal.it/atleta/{slug}/{hash}` senza dipendenze esterne pesanti.
+- **Gestione Concorrenza & Rate Limit**: Semaforo asincrono con `httpx` limitato a 8 connessioni contemporanee per garantire velocità senza saturare le risorse di rete.
 
 ---
 
 ## ⚖️ Disclaimer & Note Legali
 
 - **Progetto Non Ufficiale**: Questo software è uno strumento indipendente open-source, sviluppato a scopo educativo, di studio e per **uso strettamente personale e domestico** (in conformità con l'Art. 2, par. 2, lett. c del Regolamento UE 2016/679 - GDPR).
-- **Nessuna Affiliazione**: Il progetto non è in alcun modo affiliato, associato, sponsorizzato né approvato da **ENDU**, **Evodata S.r.l.** o da alcuna delle manifestazioni sportive e federazioni citate. Tutti i marchi, nomi di eventi e loghi appartengono ai rispettivi proprietari.
-- **Nessuna Conservazione di Dati Personali**: L'applicazione opera esclusivamente "on-demand" in memoria RAM temporanea e non memorizza, raccoglie né archivia alcun dato anagrafico su database permanenti.
+- **Nessuna Affiliazione**: Il progetto non è in alcun modo affiliato, associato, sponsorizzato né approvato da **ENDU**, **Evodata S.r.l.**, da **FIDAL** (Federazione Italiana di Atletica Leggera) o dalle società di cronometraggio citate (TDS, SDAM, WinningTime). Tutti i marchi, loghi e denominazioni appartengono ai rispettivi proprietari.
+- **Nessuna Conservazione di Dati Personali**: L'applicazione opera esclusivamente "on-demand" in memoria volatile (RAM) e non memorizza né redistribuisce alcun dato anagrafico su database permanenti.
 - **Responsabilità**: L'utente è l'unico responsabile dell'utilizzo dello strumento nel rispetto dei termini di servizio delle piattaforme terze interrogate.
 
 ---
@@ -154,4 +176,3 @@ Nell'interfaccia web puoi alternare tra due modalità tramite le schede in alto:
 
 - **Autore**: [@dnyrulez78](https://github.com/dnyrulez78)
 - **Licenza**: Distribuito sotto licenza open-source [MIT](LICENSE). Sei libero di utilizzare, modificare e distribuire questo software citandone la paternità.
-
