@@ -2,6 +2,10 @@
 
 Applicazione web locale moderna, veloce e pulita (backend Python + frontend HTML5/Tailwind CSS) per verificare a quali manifestazioni future di **Corsa su Strada** (road running) presenti sulla piattaforma [ENDU](https://www.endu.net) un atleta o una società risulta iscritto.
 
+<p align="center">
+  <img src="assets/screenshot.png" alt="Anteprima Interfaccia ENDU Runner Scanner" width="900" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" />
+</p>
+
 ---
 
 ## 🌟 Caratteristiche Principali
@@ -25,6 +29,8 @@ C:\ENDU-Tool\
 ├── requirements.txt         # Dipendenze Python (fastapi, uvicorn, httpx)
 ├── avvia_app.bat            # Script di avvio rapido con doppio clic (Windows)
 ├── README.md                # Documentazione e guida operativa
+├── assets\
+│   └── screenshot.png       # Screenshot dell'interfaccia utente
 ├── backend\
 │   ├── __init__.py
 │   ├── endu_client.py       # Motore asincrono, cache in memoria e chiamate ad ENDU
