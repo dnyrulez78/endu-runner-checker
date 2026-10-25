@@ -63,14 +63,21 @@ C:\ENDU-Tool\
 
 ## 🚀 Guida Passo-Passo per l'Installazione e l'Avvio
 
-Poiché non hai esperienza di programmazione, segui questi semplici passaggi numerati a prova di errore:
+### ⚠️ Prerequisito su un Nuovo PC (Una tantum)
+Se stai aprendo il progetto su un computer dove **Python non è ancora presente**:
+1. Scarica Python dal sito ufficiale: 👉 [python.org/downloads](https://www.python.org/downloads/) (consigliato Python 3.11 o 3.12).
+2. **FONDAMENTALE**: Nella primissima schermata dell'installazione, spunta la casella in basso:
+   **`[X] Add python.exe to PATH`**
+3. Clicca su **Install Now** e attendi il completamento.
+*(Se ti dimentichi questo passaggio, `avvia_app.bat` ti guiderà automaticamente aprendoti la pagina corretta).*
+
+---
 
 ### Metodo 1: Avvio Rapido con Doppio Clic (Consigliato su Windows)
 
-1. Apri la cartella `C:\ENDU-Tool`.
+1. Apri la cartella del progetto (es. `C:\ENDU-Tool` oppure la cartella decompressa dallo ZIP).
 2. Fai **doppio clic** sul file **`avvia_app.bat`**.
-3. Il file verificherà automaticamente la presenza di Python, installerà le librerie mancanti e avvierà il server.
-4. Apri il browser web (Chrome, Edge, Firefox, Brave) all'indirizzo:
+3. Lo script rileverà automaticamente Python, installerà le 3 librerie necessarie (`fastapi`, `uvicorn`, `httpx`) e aprirà direttamente il browser su:
    👉 **`http://localhost:8000`**
 
 ---
