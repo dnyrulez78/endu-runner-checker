@@ -117,3 +117,20 @@ Nell'interfaccia web troverai un modulo pulito e intuitivo:
 - **Endpoint Verifica Iscritti Manifestazione**:
   `GET https://www.endu.net/api/editions/{event_id}/entrants?firstName=...&lastName=...&teamCode=...`
 - **Gestione Rate Limit**: L'uso di un semaforo a 8 connessioni contemporanee evita di saturare la connessione o generare allarmi lato server, garantendo al contempo una scansione completa di oltre 350 manifestazioni in appena 3-4 secondi.
+
+---
+
+## ⚖️ Disclaimer & Note Legali
+
+- **Progetto Non Ufficiale**: Questo software è uno strumento indipendente open-source, sviluppato a scopo educativo, di studio e per **uso strettamente personale e domestico** (in conformità con l'Art. 2, par. 2, lett. c del Regolamento UE 2016/679 - GDPR).
+- **Nessuna Affiliazione**: Il progetto non è in alcun modo affiliato, associato, sponsorizzato né approvato da **ENDU**, **Evodata S.r.l.** o da alcuna delle manifestazioni sportive e federazioni citate. Tutti i marchi, nomi di eventi e loghi appartengono ai rispettivi proprietari.
+- **Nessuna Conservazione di Dati Personali**: L'applicazione opera esclusivamente "on-demand" in memoria RAM temporanea e non memorizza, raccoglie né archivia alcun dato anagrafico su database permanenti.
+- **Responsabilità**: L'utente è l'unico responsabile dell'utilizzo dello strumento nel rispetto dei termini di servizio delle piattaforme terze interrogate.
+
+---
+
+## 👤 Autore & Licenza
+
+- **Autore**: Danny ([dnyrulez@gmail.com](mailto:dnyrulez@gmail.com))
+- **Licenza**: Distribuito sotto licenza open-source [MIT](LICENSE). Sei libero di utilizzare, modificare e distribuire questo software citandone la paternità.
+
