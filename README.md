@@ -131,6 +131,6 @@ Nell'interfaccia web troverai un modulo pulito e intuitivo:
 
 ## 👤 Autore & Licenza
 
-- **Autore**: Danny ([@dnyrulez78](https://github.com/dnyrulez78) - [dnyrulez@gmail.com](mailto:dnyrulez@gmail.com))
+- **Autore**: [@dnyrulez78](https://github.com/dnyrulez78)
 - **Licenza**: Distribuito sotto licenza open-source [MIT](LICENSE). Sei libero di utilizzare, modificare e distribuire questo software citandone la paternità.
 
