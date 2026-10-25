@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ENDU - Verifica Iscrizioni Corsa su Strada</title>
+    <title>ENDU Runner Scanner & Risultati</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons CDN -->
@@ -22,7 +22,7 @@
                 </div>
                 <div>
                     <h1 class="text-lg font-bold tracking-tight text-slate-900 leading-none">ENDU Runner Scanner</h1>
-                    <p class="text-xs text-slate-500 mt-0.5">Verifica iscrizioni Corsa su Strada</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Iscrizioni future e Storico risultati Corsa su Strada</p>
                 </div>
             </div>
 
@@ -43,18 +43,30 @@
     <!-- Main Container -->
     <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
+        <!-- Mode Navigation Tabs -->
+        <div class="flex items-center space-x-2 p-1.5 bg-slate-200/80 rounded-2xl w-fit shadow-inner">
+            <button type="button" id="tabFuture" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm bg-white text-emerald-900 flex items-center space-x-2">
+                <i data-lucide="calendar-check-2" class="w-4 h-4 text-emerald-600"></i>
+                <span>Iscrizioni Future</span>
+            </button>
+            <button type="button" id="tabResults" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+                <i data-lucide="trophy" class="w-4 h-4 text-slate-500"></i>
+                <span>Storico Risultati & Tempi</span>
+            </button>
+        </div>
+
         <!-- Info / Introduction Banner -->
-        <div class="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+        <div id="bannerCard" class="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden transition-all duration-300">
             <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
-                <i data-lucide="trophy" class="w-72 h-72"></i>
+                <i data-lucide="medal" class="w-72 h-72"></i>
             </div>
             <div class="relative z-10 max-w-2xl space-y-2">
                 <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 text-xs font-semibold tracking-wide uppercase border border-emerald-500/30">
                     <i data-lucide="zap" class="w-3.5 h-3.5"></i>
-                    <span>Scansione Diretta API ENDU</span>
+                    <span id="bannerBadgeText">Scansione Diretta API ENDU</span>
                 </div>
-                <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Verifica Iscrizioni Gare Future</h2>
-                <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight" id="bannerTitle">Verifica Iscrizioni Gare Future</h2>
+                <p class="text-slate-300 text-sm sm:text-base leading-relaxed" id="bannerDesc">
                     Inserisci il Nome e Cognome del podista oppure il Codice Società per scansionare istantaneamente
                     le manifestazioni running dei prossimi mesi su <span class="text-emerald-300 font-medium">endu.net</span>.
                 </p>
@@ -108,23 +120,18 @@
                         </div>
                     </div>
 
-                    <!-- Orizzonte Temporale (Mesi) -->
+                    <!-- Orizzonte Temporale / Periodo -->
                     <div class="space-y-1.5">
-                        <label for="months" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        <label for="timePeriodSelect" class="block text-xs font-bold text-slate-700 uppercase tracking-wider" id="timePeriodLabel">
                             Orizzonte Temporale
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                 <i data-lucide="calendar" class="w-4 h-4"></i>
                             </div>
-                            <select id="months" name="months"
+                            <select id="timePeriodSelect" name="timePeriod"
                                 class="w-full pl-10 pr-9 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-medium text-slate-900 appearance-none cursor-pointer">
-                                <option value="1">Prossimo 1 mese</option>
-                                <option value="2">Prossimi 2 mesi</option>
-                                <option value="3">Prossimi 3 mesi</option>
-                                <option value="5" selected>Prossimi 5 mesi (Predefinito)</option>
-                                <option value="6">Prossimi 6 mesi</option>
-                                <option value="12">Prossimi 12 mesi (1 anno)</option>
+                                <!-- Opzioni popolate dinamicamente da app.js in base al Tab -->
                             </select>
                             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
                                 <i data-lucide="chevron-down" class="w-4 h-4"></i>
@@ -136,9 +143,9 @@
 
                 <!-- Action Buttons -->
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 border-t border-slate-100">
-                    <p class="text-xs text-slate-400 flex items-center space-x-1.5">
+                    <p class="text-xs text-slate-400 flex items-center space-x-1.5" id="filterNotice">
                         <i data-lucide="info" class="w-3.5 h-3.5"></i>
-                        <span>Filtro automatico: solo gare di <b>Corsa su Strada</b> (esclusi trail e triathlon).</span>
+                        <span id="filterNoticeText">Filtro automatico: solo gare di <b>Corsa su Strada</b> (esclusi trail e triathlon).</span>
                     </p>
                     <div class="flex items-center space-x-3 w-full sm:w-auto">
                         <button type="button" id="btnClear"
@@ -186,7 +193,7 @@
 
             <div class="flex items-center justify-between text-xs text-slate-500">
                 <span id="progressCheckedText">0 gare verificate</span>
-                <span id="progressMatchesText" class="font-semibold text-emerald-700">0 iscrizioni trovate</span>
+                <span id="progressMatchesText" class="font-semibold text-emerald-700">0 corrispondenze trovate</span>
             </div>
         </div>
 
@@ -225,9 +232,9 @@
             <div class="w-16 h-16 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
                 <i data-lucide="search-x" class="w-8 h-8"></i>
             </div>
-            <h4 class="text-base font-bold text-slate-800">Nessuna Iscrizione Trovata</h4>
+            <h4 class="text-base font-bold text-slate-800" id="emptyStateTitle">Nessun Risultato Trovato</h4>
             <p class="text-xs text-slate-500 max-w-md mx-auto" id="emptyStateDesc">
-                Nessun atleta corrispondente ai criteri inseriti risulta iscritto alle manifestazioni di Corsa su Strada nell'intervallo temporale selezionato.
+                Nessun atleta corrispondente ai criteri inseriti risulta trovato nell'intervallo temporale selezionato.
             </p>
         </div>
 
@@ -235,13 +242,12 @@
 
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
-        <p>ENDU Runner Registration Scanner &bull; Uso Personale Locale &bull; Connessione diretta a endu.net</p>
+        <p>ENDU Runner Scanner &bull; Uso Personale Locale &bull; Nessun dato permanente salvato &bull; Connessione diretta a endu.net</p>
     </footer>
 
     <!-- App JavaScript -->
     <script src="/static/app.js"></script>
     <script>
-        // Inizializza le icone Lucide
         lucide.createIcons();
     </script>
 </body>

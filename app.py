@@ -11,15 +11,15 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from backend.endu_client import EnduClient
-from backend.models import CalendarStatusResponse, SearchResponse
+from backend.models import CalendarStatusResponse, PastResultsSearchResponse, SearchResponse
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("endu_tool")
 
 app = FastAPI(
-    title="ENDU Road Running Registration Checker",
-    description="Applicazione locale per verificare le iscrizioni di podisti e società alle gare ENDU di Corsa su Strada.",
-    version="1.0.0"
+    title="ENDU Road Running Registration Checker & Results",
+    description="Applicazione locale per verificare le iscrizioni e consultare lo storico risultati alle gare ENDU di Corsa su Strada.",
+    version="2.0.0"
 )
 
 # Abilita CORS per uso locale
@@ -141,6 +141,95 @@ async def search_registrations_stream(
             last_name=clean_last or None,
             team_code=clean_team or None,
             months=months,
+            force_refresh=force_refresh
+        ):
+            yield f"data: {json.dumps(packet, ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(
+        sse_event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
+
+
+# =============================================================================
+# ENDPOINT PER RISULTATI STORICI E CLASSIFICHE
+# =============================================================================
+
+@app.get("/api/results/search", response_model=PastResultsSearchResponse)
+async def search_past_results(
+    first_name: Optional[str] = Query(None, description="Nome dell'atleta"),
+    last_name: Optional[str] = Query(None, description="Cognome dell'atleta"),
+    team_code: Optional[str] = Query(None, description="Codice o nome della società sportiva"),
+    months: int = Query(12, ge=1, le=24, description="Numero di mesi passati da scansionare"),
+    year: Optional[int] = Query(None, ge=2024, le=2030, description="Anno solare specifico (opzionale)"),
+    force_refresh: bool = Query(False, description="Forza il refresh delle gare passate")
+):
+    """
+    Endpoint REST sincrono: scansiona le manifestazioni passate con classifiche digitali
+    e restituisce i piazzamenti, tempi e distacchi dell'atleta o della squadra.
+    """
+    clean_first = first_name.strip() if first_name else ""
+    clean_last = last_name.strip() if last_name else ""
+    clean_team = team_code.strip() if team_code else ""
+
+    if not clean_first and not clean_last and not clean_team:
+        raise HTTPException(
+            status_code=400,
+            detail="Specificare almeno il Cognome, il Nome oppure la Società per la ricerca storica."
+        )
+
+    try:
+        return await endu_client.scan_past_results(
+            first_name=clean_first or None,
+            last_name=clean_last or None,
+            team_code=clean_team or None,
+            months=months,
+            year=year,
+            force_refresh=force_refresh
+        )
+    except Exception as e:
+        logger.error(f"Errore durante la scansione dei risultati: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/results/search/stream")
+async def search_past_results_stream(
+    first_name: Optional[str] = Query(None),
+    last_name: Optional[str] = Query(None),
+    team_code: Optional[str] = Query(None),
+    months: int = Query(12, ge=1, le=24),
+    year: Optional[int] = Query(None, ge=2024, le=2030),
+    force_refresh: bool = Query(False)
+):
+    """
+    Endpoint Server-Sent Events (SSE) per risultati storici: trasmette live il progresso
+    e ogni piazzamento/tempo trovato direttamente al browser.
+    """
+    clean_first = first_name.strip() if first_name else ""
+    clean_last = last_name.strip() if last_name else ""
+    clean_team = team_code.strip() if team_code else ""
+
+    if not clean_first and not clean_last and not clean_team:
+        async def err_generator():
+            err_payload = {
+                "type": "error",
+                "message": "Specificare almeno il Cognome, il Nome o la Società."
+            }
+            yield f"data: {json.dumps(err_payload, ensure_ascii=False)}\n\n"
+        return StreamingResponse(err_generator(), media_type="text/event-stream")
+
+    async def sse_event_generator():
+        async for packet in endu_client.scan_past_results_stream(
+            first_name=clean_first or None,
+            last_name=clean_last or None,
+            team_code=clean_team or None,
+            months=months,
+            year=year,
             force_refresh=force_refresh
         ):
             yield f"data: {json.dumps(packet, ensure_ascii=False)}\n\n"

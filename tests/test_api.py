@@ -1,48 +1,59 @@
-import asyncio
+import os
+import sys
+
+# Assicura che la root del progetto sia in sys.path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from fastapi.testclient import TestClient
 from app import app
 
 client = TestClient(app)
 
 def test_routes():
-    print("Testing GET / ...")
+    print("1. Testing GET / ...")
     r = client.get("/")
     assert r.status_code == 200
     assert "ENDU Runner Scanner" in r.text
-    print("GET / OK!")
+    print("   GET / OK!")
 
-    print("Testing GET /api/calendar/status ...")
+    print("2. Testing GET /api/calendar/status ...")
     r = client.get("/api/calendar/status")
     assert r.status_code == 200
-    data = r.json()
-    assert "is_cached" in data
-    print("GET /api/calendar/status OK!", data)
+    assert "is_cached" in r.json()
+    print("   GET /api/calendar/status OK!")
 
-    print("Testing GET /api/search with validation error (empty query) ...")
+    print("3. Testing GET /api/search with validation error ...")
     r = client.get("/api/search")
     assert r.status_code == 400
-    print("Validation 400 OK!")
+    print("   Validation 400 OK!")
 
-    print("Testing GET /api/search with Antonio Aiello (1 month) ...")
+    print("4. Testing GET /api/search (Future) for Antonio Aiello ...")
     r = client.get("/api/search?first_name=Antonio&last_name=Aiello&months=1")
     assert r.status_code == 200
-    res = r.json()
-    assert res["success"] is True
-    print(f"Search OK! Scanned {res['total_events_scanned']} events, found {res['matches_count']} matches in {res['elapsed_seconds']}s")
+    data = r.json()
+    assert data["success"] is True
+    print(f"   Future search OK! Found {data['matches_count']} matches in {data['elapsed_seconds']}s")
 
-    print("Testing GET /api/search/stream with SSE ...")
-    with client.stream("GET", "/api/search/stream?first_name=Antonio&last_name=Aiello&months=1") as stream_res:
+    print("5. Testing GET /api/results/search (Past Results) for Rossi ...")
+    r = client.get("/api/results/search?last_name=Rossi&months=2")
+    assert r.status_code == 200
+    data = r.json()
+    assert data["success"] is True
+    print(f"   Past results OK! Scanned {data['total_events_scanned']} past events, found {data['matches_count']} in {data['elapsed_seconds']}s")
+
+    print("6. Testing SSE stream for Past Results ...")
+    with client.stream("GET", "/api/results/search/stream?last_name=Rossi&months=2") as stream_res:
         assert stream_res.status_code == 200
-        lines = []
+        count = 0
         for line in stream_res.iter_lines():
             if line:
-                lines.append(line)
-                if "complete" in line or len(lines) >= 10:
+                count += 1
+                if count >= 5:
                     break
-        print(f"Stream OK! Received {len(lines)} SSE lines.")
-        assert len(lines) > 0
+        assert count > 0
+        print(f"   Past results SSE stream OK! Received {count} packets.")
 
-    print("ALL TESTS PASSED SUCCESSFULLY!")
+    print("\n>>> ALL TESTS PASSED SUCCESSFULLY! <<<")
 
 if __name__ == "__main__":
     test_routes()

@@ -1,6 +1,8 @@
-# 🏃 ENDU Road Running Registration Checker
+# 🏃 ENDU Road Running Checker & Results (v2.0)
 
-Applicazione web locale moderna, veloce e pulita (backend Python + frontend HTML5/Tailwind CSS) per verificare a quali manifestazioni future di **Corsa su Strada** (road running) presenti sulla piattaforma [ENDU](https://www.endu.net) un atleta o una società risulta iscritto.
+Applicazione web locale moderna, veloce e pulita (backend Python + frontend HTML5/Tailwind CSS) per:
+1. **Verificare a quali manifestazioni future di Corsa su Strada** (road running) presenti sulla piattaforma [ENDU](https://www.endu.net) un atleta o una società risulta iscritto.
+2. **Consultare lo storico dei risultati e tempi di gara** ottenuti nelle manifestazioni passate (fino a 2 anni), con tempi ufficiali, real time, posizione assoluta e di categoria, distacchi e link alla classifica ufficiale.
 
 <p align="center">
   <img src="assets/screenshot.png" alt="Anteprima Interfaccia ENDU Runner Scanner" width="900" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" />
@@ -8,16 +10,21 @@ Applicazione web locale moderna, veloce e pulita (backend Python + frontend HTML
 
 ---
 
-## 🌟 Caratteristiche Principali
+## 🌟 Novità Versione 2.0 & Caratteristiche Principali
 
-- **Orizzonte Temporale Flessibile**: Ricerca predefinita sui prossimi **5 mesi** (configurabile da 1 a 12 mesi).
+- **Doppia Modalità con Schede**:
+  - **Iscrizioni Future**: Scansiona il calendario futuro per verificare la presenza dell'atleta o della squadra.
+  - **Storico Risultati & Classifiche**: Cerca in quali gare passate l'atleta ha tagliato il traguardo e mostra i tempi ufficiali e i piazzamenti.
+- **Nessun Login Richiesto**: L'accesso alle classifiche digitali ufficiali e alle liste iscritti avviene in modalità pubblica tramite le API native di ENDU.
+- **Orizzonte Temporale Flessibile**:
+  - *Gare future*: configurabile da 1 a 12 mesi (default 5 mesi).
+  - *Storico risultati*: ultimi 3, 6, 12, 24 mesi o anno solare specifico (2026, 2025, 2024).
 - **Filtro Esclusivo Corsa su Strada**: Interroga unicamente le manifestazioni `discipline: road_running` escludendo automaticamente trail running, triathlon, ciclismo e nuoto.
-- **Reverse Engineering API Native**: Comunica direttamente con gli endpoint nativi JSON di ENDU (`/api/events` e `/api/editions/{id}/entrants`), garantendo risposte immediate e zero overhead.
-- **Alte Prestazioni & Nessun Blocco**: Chiamate asincrone concorrenti con `httpx` gestite da un `asyncio.Semaphore(8)` per verificare oltre 350 manifestazioni in meno di 4 secondi senza incorrere in rate limiting o blocchi 403.
-- **Barra di Avanzamento Real-Time (SSE)**: La scansione trasmette aggiornamenti in tempo reale via Server-Sent Events; ogni gara trovata compare all'istante a schermo.
-- **Caching Intelligente in Memoria**: Il calendario gare viene memorizzato per 1 ora in RAM, evitando di riscaricare centinaia di manifestazioni ad ogni singola ricerca.
+- **Alte Prestazioni & Nessun Blocco**: Chiamate asincrone concorrenti con `httpx` gestite da un `asyncio.Semaphore(8)` per verificare centinaia di manifestazioni in pochissimi secondi.
+- **Barra di Avanzamento Real-Time (SSE)**: La scansione trasmette aggiornamenti in tempo reale via Server-Sent Events; ogni risultato trovato compare all'istante a schermo.
+- **Caching Intelligente in Memoria**: Il calendario viene memorizzato temporaneamente in RAM per evitare chiamate ridondanti.
 - **Nessun Database Permanente**: Rispetta la privacy, non memorizza anagrafiche sul disco; le verifiche avvengono in diretta on-demand.
-- **Riepilogo e Link Diretti**: Per ogni gara trovata mostra data, località, pettorale (se assegnato), categoria, società, distanza e link diretti sia alla pagina evento che alla pagina di verifica ufficiale ENDU.
+- **Dettagli Completi e Link Diretti**: Visualizza data, località, pettorale, tempo ufficiale, real time, posizione assoluta, categoria, genere, distacco e link diretti sia alla pagina evento che alla classifica ufficiale ENDU.
 
 ---
 
@@ -101,18 +108,23 @@ Apri il tuo browser preferito e vai su:
 
 ## 🎯 Come Eseguire una Ricerca
 
-Nell'interfaccia web troverai un modulo pulito e intuitivo:
+Nell'interfaccia web puoi alternare tra due modalità tramite le schede in alto:
 
-1. **Cognome** *(obbligatorio)*: es. `Rossi`, `Ferrari`, `Aiello`.
-2. **Nome** *(opzionale)*: es. `Mario`, `Antonio`.
-3. **Codice o Società** *(opzionale)*: 
-   - Se inserisci sia il nome sia la società (es. `MI161` o `Canegrate`), il sistema verificherà l'atleta e filtrerà solo se appartiene a quella squadra.
-   - Se lasci vuoti Nome e Cognome e inserisci solo la società, il sistema cercherà **tutti gli atleti** di quella squadra iscritti alle gare future!
-4. **Orizzonte Temporale**: seleziona quanti mesi scansionare (predefinito: **5 mesi**).
-5. Clicca su **Verifica Iscrizioni**:
-   - Comparirà la barra di avanzamento che mostra in tempo reale le gare analizzate (es. `124 / 382 gare verificate`).
-   - Non appena viene individuata un'iscrizione, la relativa card comparirà istantaneamente a schermo con il numero di pettorale (se già assegnato), la società, il percorso e i pulsanti per visualizzare l'evento su ENDU.
-6. **Pulsante "Copia Risultati"**: permette di copiare con un clic il testo formattato dell'elenco gare trovate per incollarlo su WhatsApp, email o note.
+### 1. Scheda "Iscrizioni Future"
+1. Inserisci il **Cognome** (obbligatorio, es. `Rossi`, `Aiello`) e facoltativamente il **Nome**.
+2. **Codice o Società (opzionale)**: per filtrare la squadra o cercare tutti gli atleti del team.
+3. Seleziona l'orizzonte temporale (predefinito: **5 mesi**).
+4. Clicca su **Verifica Iscrizioni**: visualizzerai in tempo reale le manifestazioni a cui l'atleta risulta iscritto con il relativo pettorale assegnato.
+
+### 2. Scheda "Storico Risultati & Tempi" (Novità v2.0)
+1. Inserisci il **Cognome** e/o il **Nome** del podista.
+2. Seleziona l'intervallo storico desiderato (es. *Ultimi 12 mesi*, *Ultimi 24 mesi*, o anno solare *2025*, *2024*).
+3. Clicca su **Cerca Risultati Storici**: visualizzerai tutte le gare concluse dall'atleta con:
+   - **Tempo ufficiale e Real time**
+   - **Posizione assoluta** all'arrivo
+   - **Posizione di categoria e di genere**
+   - **Distacco dal primo classificato**
+   - Link diretto alla **classifica ufficiale ENDU** per consultare intertempi e graduatorie complete.
 
 ---
 
@@ -122,7 +134,10 @@ Nell'interfaccia web troverai un modulo pulito e intuitivo:
   `GET https://www.endu.net/api/events?dateFrom={start}&dateTo={end}&discipline=road_running&pageSize=500&sort=date.from`
 - **Endpoint Verifica Iscritti Manifestazione**:
   `GET https://www.endu.net/api/editions/{event_id}/entrants?firstName=...&lastName=...&teamCode=...`
-- **Gestione Rate Limit**: L'uso di un semaforo a 8 connessioni contemporanee evita di saturare la connessione o generare allarmi lato server, garantendo al contempo una scansione completa di oltre 350 manifestazioni in appena 3-4 secondi.
+- **Endpoint Classifiche e Risultati Ufficiali**:
+  - Impostazioni gara: `GET https://www.endu.net/api/results/events/{event_id}/settings`
+  - Risultati atleti: `GET https://www.endu.net/api/results?editionId={edition_id}&raceId={race_id}&categoryId={cat_id}&optionId={opt_id}&searchText={search_text}`
+- **Gestione Rate Limit**: L'uso di un semaforo a 8 connessioni contemporanee evita di saturare la connessione o generare allarmi lato server, garantendo una scansione ad alte prestazioni in pochi secondi.
 
 ---
 
