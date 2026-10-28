@@ -65,6 +65,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const emptyStateDesc = document.getElementById("emptyStateDesc");
     const btnExport = document.getElementById("btnExport");
 
+    function getStravaSearchUrl(fullName) {
+        if (!fullName) return "#";
+        return `https://www.strava.com/athletes/search?text=${encodeURIComponent(fullName.trim())}`;
+    }
+
     // Stato applicazione
     let currentMode = "future"; // "future" | "results"
     let currentEventSource = null;
@@ -693,7 +698,12 @@ document.addEventListener("DOMContentLoaded", () => {
                         ${ent.course_name ? `<span><strong class="font-semibold text-slate-700">Gara:</strong> ${escapeHtml(ent.course_name)}</span>` : ''}
                     </div>
                 </div>
-                <div>
+                <div class="flex items-center space-x-2 shrink-0">
+                    <a href="${getStravaSearchUrl(ent.full_name)}" target="_blank" rel="noopener noreferrer" title="Cerca ${escapeHtml(ent.full_name)} su Strava"
+                        class="px-2.5 py-1 rounded-lg bg-orange-50 hover:bg-orange-100 text-[#FC5200] border border-orange-200 text-xs font-semibold transition-colors flex items-center space-x-1 shadow-2xs">
+                        <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7.01 13.828h4.172"/></svg>
+                        <span>Cerca su Strava</span>
+                    </a>
                     ${ent.bib ? `
                         <div class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-900 border border-amber-300 shadow-sm">
                             <span class="text-[10px] uppercase font-bold text-amber-700">Pettorale</span>
@@ -780,12 +790,19 @@ document.addEventListener("DOMContentLoaded", () => {
                         ${res.nationality ? `<span class="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-[10px] font-bold uppercase">${escapeHtml(res.nationality)}</span>` : ''}
                         <span class="px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-100">${escapeHtml(res.race_name)}</span>
                     </div>
-                    ${res.bib ? `
-                        <div class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-300 text-xs">
-                            <span class="text-[10px] uppercase font-bold text-amber-700">Pettorale</span>
-                            <span class="font-mono font-bold">#${escapeHtml(res.bib)}</span>
-                        </div>
-                    ` : ''}
+                    <div class="flex items-center space-x-2 shrink-0">
+                        <a href="${getStravaSearchUrl(res.full_name)}" target="_blank" rel="noopener noreferrer" title="Cerca ${escapeHtml(res.full_name)} su Strava"
+                            class="px-2.5 py-1 rounded-lg bg-orange-50 hover:bg-orange-100 text-[#FC5200] border border-orange-200 text-xs font-semibold transition-colors flex items-center space-x-1 shadow-2xs">
+                            <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7.01 13.828h4.172"/></svg>
+                            <span>Cerca su Strava</span>
+                        </a>
+                        ${res.bib ? `
+                            <div class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-300 text-xs">
+                                <span class="text-[10px] uppercase font-bold text-amber-700">Pettorale</span>
+                                <span class="font-mono font-bold">#${escapeHtml(res.bib)}</span>
+                            </div>
+                        ` : ''}
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
@@ -908,7 +925,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     <h3 class="text-2xl font-black tracking-tight text-white">${escapeHtml(athlete.name)}</h3>
                     <p class="text-sm text-slate-300 font-medium">Società: <span class="text-emerald-300 font-bold">${escapeHtml(athlete.society)}</span></p>
                 </div>
-                <div class="shrink-0">
+                <div class="shrink-0 flex items-center space-x-2">
+                    <a href="${getStravaSearchUrl(athlete.name)}" target="_blank" rel="noopener noreferrer" title="Cerca ${escapeHtml(athlete.name)} su Strava"
+                        class="px-3.5 py-2 rounded-xl bg-[#FC5200]/20 hover:bg-[#FC5200]/30 border border-[#FC5200]/40 text-orange-200 text-xs font-semibold flex items-center space-x-2 transition-all">
+                        <svg class="w-3.5 h-3.5 fill-[#FC5200]" viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7.01 13.828h4.172"/></svg>
+                        <span>Cerca su Strava</span>
+                    </a>
                     <a href="${escapeHtml(athlete.fidal_url)}" target="_blank" rel="noopener noreferrer"
                         class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-semibold flex items-center space-x-2 transition-all">
                         <i data-lucide="external-link" class="w-4 h-4"></i>
@@ -993,6 +1015,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     ${athlete.society ? `<p class="text-sm text-stone-300 font-medium">Società: <span class="text-amber-300 font-bold">${escapeHtml(athlete.society)}</span></p>` : ''}
                 </div>
                 <div class="shrink-0 flex items-center space-x-2">
+                    <a href="${getStravaSearchUrl(athlete.name)}" target="_blank" rel="noopener noreferrer" title="Cerca ${escapeHtml(athlete.name)} su Strava"
+                        class="px-3.5 py-2 rounded-xl bg-[#FC5200]/20 hover:bg-[#FC5200]/30 border border-[#FC5200]/40 text-orange-200 text-xs font-semibold flex items-center space-x-1.5 transition-all">
+                        <svg class="w-3.5 h-3.5 fill-[#FC5200]" viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7.01 13.828h4.172"/></svg>
+                        <span>Cerca su Strava</span>
+                    </a>
                     <div class="px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold text-center">
                         <span class="block text-[10px] text-amber-300 uppercase">Totale Gare</span>
                         <span class="text-xl font-mono text-white">${athlete.total_races}</span>
@@ -1120,6 +1147,22 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Impossibile copiare negli appunti.");
         });
     });
+
+    // Supporto parametri URL per navigazione diretta (es. ?mode=fidal&last=Marchesan&first=Danny&auto=1)
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramMode = urlParams.get("mode");
+    const paramLast = urlParams.get("last") || urlParams.get("lastName");
+    const paramFirst = urlParams.get("first") || urlParams.get("firstName");
+    const paramAuto = urlParams.get("auto");
+
+    if (paramMode && ["future", "results", "fidal", "trail"].includes(paramMode)) {
+        setupMode(paramMode);
+    }
+    if (paramLast) lastNameInput.value = paramLast;
+    if (paramFirst) firstNameInput.value = paramFirst;
+    if (paramAuto === "1" || paramAuto === "true") {
+        setTimeout(() => searchForm.dispatchEvent(new Event("submit")), 300);
+    }
 
     function escapeHtml(str) {
         if (!str) return "";

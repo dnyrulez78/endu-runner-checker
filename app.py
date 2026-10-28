@@ -29,7 +29,7 @@ logger = logging.getLogger("endu_tool")
 app = FastAPI(
     title="ENDU, ICRON & Wedosport Road & Trail Running Checker",
     description="Applicazione locale per verificare le iscrizioni su ENDU, ICRON e Wedosport, consultare lo storico risultati ENDU, l'archivio federale FIDAL/TDS e la carriera Trail Running Wedosport.",
-    version="3.2.0"
+    version="3.3.0"
 )
 
 # Abilita CORS per uso locale

@@ -1,4 +1,4 @@
-# 🏃 ENDU, ICRON & Wedosport Runner Scanner, Results & Trail Archive (v3.2)
+# 🏃 ENDU, ICRON & Wedosport Runner Scanner, Results & Trail Archive (v3.3)
 
 Applicazione web locale moderna, veloce e pulita (backend Python FastAPI + frontend HTML5/Tailwind CSS) progettata per podisti, atleti e società sportive per:
 1. **Verificare a quali manifestazioni future di Corsa su Strada & Trail Running** (road running, trail, skyrunning) presenti su [ENDU](https://www.endu.net), [ICRON](https://www.icron.it) e [Wedosport](https://www.wedosport.net) un atleta o una squadra risulta iscritto, con supporto a filtro unificato o per singola piattaforma.
@@ -7,12 +7,12 @@ Applicazione web locale moderna, veloce e pulita (backend Python FastAPI + front
 4. **Consultare la Carriera & Risultati Trail Running su Wedosport**, con accesso al palmarès completo di gare Trail, Ultra Trail, Skyrunning e Vertical dal **2004 ad oggi** (distanze, chilometri, tempi, piazzamenti e link alle classifiche ufficiali).
 
 <p align="center">
-  <img src="assets/screenshot.png" alt="Anteprima Interfaccia ENDU, ICRON & Wedosport Runner Scanner v3.2" width="900" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" />
+  <img src="assets/screenshot.png" alt="Anteprima Interfaccia ENDU, ICRON & Wedosport Runner Scanner v3.3" width="900" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" />
 </p>
 
 ---
 
-## 🌟 Novità Versione 3.2 & Caratteristiche Principali
+## 🌟 Novità Versione 3.3 & Caratteristiche Principali
 
 - **Integrazione Piattaforma Trail Running Wedosport (Novità v3.2)**:
   - Nuova scheda dedicata **Trail (Wedosport)** con archivio storico completo a partire dal **2004 ad oggi** (oltre 22 anni di manifestazioni montane).
@@ -39,6 +39,12 @@ Applicazione web locale moderna, veloce e pulita (backend Python FastAPI + front
 - **Barra di Avanzamento Real-Time (SSE)**: La scansione trasmette aggiornamenti in tempo reale via Server-Sent Events; ogni risultato trovato compare all'istante a schermo.
 - **Caching Intelligente in Memoria RAM**: I calendari delle manifestazioni vengono memorizzati temporaneamente in memoria per evitare chiamate ripetute ai server.
 - **Privacy & Assenza di Database Permanente**: Nessun dato personale memorizzato su disco; tutto opera on-demand in memoria volatile.
+- **Pulsante Scorciatoia "Cerca su Strava" (Novità v3.3)**:
+  - Consente di aprire con un singolo clic la ricerca atleti ufficiale di Strava in una nuova scheda del browser per seguire o verificare le attività pubbliche dei podisti.
+  - **Zero scraping & 100% privacy**: l'applicazione non interroga né memorizza dati da Strava; si tratta di una semplice scorciatoia di ricerca per l'utente loggato.
+  <p align="center" style="margin-top: 8px; margin-bottom: 12px;">
+    <img src="assets/strava_button.png" alt="Pulsante Cerca su Strava" width="160" style="border-radius: 6px;" />
+  </p>
 - **Esportazione Risultati**: Pulsante rapido per copiare il riepilogo testuale formattato negli appunti con un clic.
 - **Suite di Test Automatizzata**: 17 test integrati (`tests/test_api.py`) con copertura di tutti i provider e flussi di streaming.
 
@@ -48,12 +54,13 @@ Applicazione web locale moderna, veloce e pulita (backend Python FastAPI + front
 
 ```text
 C:\ENDU-Tool\
-├── app.py                   # Entry point FastAPI e server web locale (v3.2)
+├── app.py                   # Entry point FastAPI e server web locale (v3.3)
 ├── requirements.txt         # Dipendenze Python (fastapi, uvicorn, httpx)
 ├── avvia_app.bat            # Script di avvio rapido con doppio clic (Windows)
 ├── README.md                # Documentazione tecnica e guida operativa
 ├── assets\
-│   └── screenshot.png       # Screenshot dell'interfaccia utente a 4 schede
+│   ├── screenshot.png       # Screenshot dell'interfaccia utente a 4 schede
+│   └── strava_button.png    # Dettaglio interfaccia del pulsante di ricerca Strava
 ├── backend\
 │   ├── __init__.py
 │   ├── endu_client.py       # Motore asincrono, cache in memoria e chiamate ad ENDU
@@ -137,7 +144,7 @@ Apri il tuo browser preferito e vai su:
 Nell'interfaccia web puoi alternare tra quattro modalità tramite le schede in alto:
 
 ### 1. Scheda "Iscrizioni Future"
-1. Inserisci il **Cognome** (obbligatorio, es. `Rossi`, `Marchesan`, `Aiello`) e facoltativamente il **Nome**.
+1. Inserisci il **Cognome** (obbligatorio, es. `Rossi`, `Ferrari`, `Bianchi`) e facoltativamente il **Nome** (es. `Mario`).
 2. **Codice o Società (opzionale)**: per filtrare la squadra (es. `vi654` o `Vicenza Runners`) o cercare tutti gli atleti del team.
 3. Seleziona l'orizzonte temporale (predefinito: **5 mesi**).
 4. **Piattaforma**: seleziona se interrogare *Tutte le piattaforme*, *Solo ENDU*, *Solo ICRON* oppure *Solo Wedosport (Trail)*.
@@ -151,7 +158,7 @@ Nell'interfaccia web puoi alternare tra quattro modalità tramite le schede in a
 4. Clicca su **Cerca Risultati ENDU**: visualizzerai tutte le gare concluse dall'atleta con tempi ufficiali, real time, posizioni assolute, di genere e di categoria, e link alle classifiche ufficiali.
 
 ### 3. Scheda "Archivio FIDAL / TDS"
-1. Inserisci il **Cognome** (es. `Marchesan`) e facoltativamente il **Nome** (es. `Danny`).
+1. Inserisci il **Cognome** (es. `Rossi`) e facoltativamente il **Nome** (es. `Mario`).
 2. *(Opzionale)* Filtra per anno solare o per città/gara.
 3. Clicca su **Cerca Carriera FIDAL**:
    - Visualizzerai la **scheda ufficiale dell'atleta** con data di nascita, categoria e società di tesseramento.
@@ -159,7 +166,7 @@ Nell'interfaccia web puoi alternare tra quattro modalità tramite le schede in a
    - L'elenco cronologico di tutte le gare ufficiali disputate, incluse le gare cronometrate da **TDS** (come le storiche mezze maratone di Vicenza o Cittadella).
 
 ### 4. Scheda "Trail (Wedosport)" (Novità v3.2)
-1. Inserisci il **Cognome** (es. `Marchesan`) e facoltativamente il **Nome** (es. `Danny`).
+1. Inserisci il **Cognome** (es. `Rossi`) e facoltativamente il **Nome** (es. `Mario`).
 2. *(Opzionale)* Filtra per anno specifico dal 2004 ad oggi.
 3. Clicca su **Cerca Trail Wedosport**:
    - Visualizzerai l'elenco cronologico di tutte le gare di **Trail Running, Ultra Trail, Skyrunning e Vertical** disputate.
@@ -215,7 +222,13 @@ Questo software è stato sviluppato con la massima cura dal punto di vista tecni
    - I marchi, denominazioni commerciali, loghi e grafiche di **ENDU** (Engagigo S.r.l. / Evodata S.r.l.), **ICRON** (Next Race S.r.l. / Icron), **Wedosport** (Wedosport S.r.l.), **FIDAL** (Federazione Italiana di Atletica Leggera) e dei servizi di cronometraggio menzionati (**TDS**, **SDAM**, **WinningTime**) appartengono ai rispettivi legittimi titolari.
    - Il presente software è un progetto open-source del tutto indipendente e non intrattiene alcun rapporto di affiliazione, partnership, sponsorizzazione o approvazione formale con le aziende e gli enti sopracitati. I nomi sono utilizzati esclusivamente con finalità descrittiva e referenziale per indicare la fonte pubblica dei dati sportivi consultati.
 
-6. **Licenza Open-Source e Limitazione di Responsabilità**:
+6. **Funzionalità "Cerca su Strava": Sola Ricerca Esterna, Zero Profilazione e Requisito di Login**:
+   - **Nessuna associazione automatica**: Il pulsante *"Cerca su Strava"* rappresenta una semplice scorciatoia di navigazione (deep link) che apre il motore di ricerca di Strava in una nuova scheda pre-impostando il nome e cognome (`https://www.strava.com/athletes/search?text=...`). **Non associa in alcun modo automaticamente o in maniera univoca l'atleta a uno specifico profilo Strava**.
+   - **Valutazione e scelta dell'utente (Gestione Omonimie)**: Data la presenza di omonimie nel mondo dello sport, è unicamente l'utente che – tra i risultati generici restituiti da Strava – valuta e sceglie se e quale atleta consultare o seguire.
+   - **Requisito di Autenticazione (Login Attivo su Strava)**: La funzione di ricerca interna di Strava è un servizio protetto di Strava Inc. Essa produce risultati ed è consultabile **esclusivamente se l'utente è già loggato con il proprio account personale su Strava nel browser**. Se l'utente non ha effettuato il login, Strava non mostra alcun dato personale, attività GPS o profilo sportivo.
+   - **Zero Scraping, Zero Chiamate Backend e Nessun Trattamento Dati**: L'applicazione non esegue alcuno scraping o richiesta automatica verso Strava, non preleva né memorizza dati di allenamento, frequenze cardiache o tracce GPS e non interagisce con le API di Strava. La privacy e le impostazioni di visibilità degli atleti rimangono gestite al 100% dalla piattaforma Strava nel pieno rispetto del GDPR (Reg. UE 2016/679).
+
+7. **Licenza Open-Source e Limitazione di Responsabilità**:
    - Il software viene fornito "così com'è" (*as is*), senza garanzie esplicite o implicite, sotto licenza open-source [MIT](LICENSE). L'utente finale è l'unico responsabile dell'utilizzo del software in conformità alle leggi vigenti e ai termini d'uso dei portali liberamente consultati.
 
 ---
