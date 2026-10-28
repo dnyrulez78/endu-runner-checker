@@ -25,6 +25,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const timePeriodLabel = document.getElementById("timePeriodLabel");
     const exactDateInput = document.getElementById("exactDate");
     const eventNameInput = document.getElementById("eventName");
+    const platformSelect = document.getElementById("platformSelect");
+    const platformFilterContainer = document.getElementById("platformFilterContainer");
 
     // Pulsanti
     const btnSubmit = document.getElementById("btnSubmit");
@@ -147,13 +149,17 @@ document.addEventListener("DOMContentLoaded", () => {
         tabResults.className = mode === "results" ? activeTabClass : inactiveTabClass;
         if (tabFidal) tabFidal.className = mode === "fidal" ? activeTabClass : inactiveTabClass;
 
+        if (platformFilterContainer) {
+            platformFilterContainer.style.display = mode === "future" ? "block" : "none";
+        }
+
         if (mode === "future") {
-            if (modeSubText) modeSubText.textContent = "Modalità attiva: verifica se l'atleta è già iscritto alle prossime gare su ENDU";
+            if (modeSubText) modeSubText.textContent = "Modalità attiva: verifica se l'atleta è già iscritto alle prossime gare su ENDU e ICRON";
             
             // Aggiorna banner
             bannerTitle.textContent = "Verifica Iscrizioni Gare Future";
-            bannerDesc.innerHTML = 'Inserisci il Nome e Cognome del podista oppure il Codice Società per scansionare istantaneamente le manifestazioni running dei prossimi mesi su <span class="text-emerald-300 font-medium">endu.net</span>.';
-            bannerBadgeText.textContent = "Scansione Diretta API ENDU";
+            bannerDesc.innerHTML = 'Inserisci il Nome e Cognome del podista oppure il Codice Società per scansionare le manifestazioni running dei prossimi mesi su <span class="text-emerald-300 font-medium">ENDU e ICRON</span>.';
+            bannerBadgeText.textContent = "Scansione Diretta ENDU + ICRON";
             timePeriodLabel.textContent = "Orizzonte Temporale";
             filterNoticeText.innerHTML = "Filtro automatico: solo gare di <b>Corsa su Strada</b> (esclusi trail e triathlon).";
             
@@ -215,7 +221,11 @@ document.addEventListener("DOMContentLoaded", () => {
             if (data.is_cached && data.total_events > 0) {
                 const minutesLeft = Math.round(data.ttl_seconds_remaining / 60);
                 cacheIndicator.className = "w-2 h-2 rounded-full bg-emerald-500";
-                cacheText.textContent = `${data.total_events} gare running in cache (${minutesLeft}m)`;
+                if (data.total_endu_events !== undefined && data.total_icron_events !== undefined) {
+                    cacheText.textContent = `${data.total_events} gare in cache (${data.total_endu_events} ENDU + ${data.total_icron_events} ICRON)`;
+                } else {
+                    cacheText.textContent = `${data.total_events} gare running in cache (${minutesLeft}m)`;
+                }
             } else {
                 cacheIndicator.className = "w-2 h-2 rounded-full bg-slate-400";
                 cacheText.textContent = "Calendario pronto al caricamento";
@@ -230,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isScanning) return;
         refreshIcon.classList.add("animate-spin");
         btnRefreshCalendar.disabled = true;
-        cacheText.textContent = "Aggiornamento calendario da ENDU...";
+        cacheText.textContent = "Aggiornamento calendario da ENDU e ICRON...";
         
         try {
             const val = timePeriodSelect.value;
@@ -413,6 +423,8 @@ document.addEventListener("DOMContentLoaded", () => {
         let streamUrl = "";
         if (currentMode === "future") {
             params.append("months", periodValue || "5");
+            const platform = platformSelect ? platformSelect.value : "all";
+            if (platform) params.append("platform", platform);
             streamUrl = `/api/search/stream?${params.toString()}`;
         } else {
             if (periodValue.startsWith("year_")) {
@@ -462,11 +474,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 break;
 
             case "progress":
-                const percent = packet.total > 0 ? Math.round((packet.checked / packet.total) * 100) : 0;
+                const checked = packet.checked !== undefined ? packet.checked : (packet.scanned !== undefined ? packet.scanned : 0);
+                const matches = packet.matches_count !== undefined ? packet.matches_count : (packet.matches !== undefined ? packet.matches : 0);
+                const percent = packet.total > 0 ? Math.round((checked / packet.total) * 100) : 0;
                 progressBar.style.width = `${percent}%`;
                 progressPercentage.textContent = `${percent}%`;
-                progressCheckedText.textContent = `${packet.checked} / ${packet.total} gare verificate`;
-                progressMatchesText.textContent = `${packet.matches_count} ${packet.matches_count === 1 ? 'gara trovata' : 'gare trovate'}`;
+                progressCheckedText.textContent = `${checked} / ${packet.total} gare verificate`;
+                progressMatchesText.textContent = `${matches} ${matches === 1 ? 'gara trovata' : 'gare trovate'}`;
+                if (packet.current_event && progressCurrentEvent) {
+                    const srcBadge = packet.source ? `[${packet.source}] ` : "";
+                    progressCurrentEvent.textContent = `${srcBadge}${packet.current_event}`;
+                }
                 break;
 
             case "match":
@@ -478,12 +496,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 resultsHeader.classList.remove("hidden");
                 updateResultsCount();
-                
-                const curPercent = packet.total > 0 ? Math.round((packet.checked / packet.total) * 100) : 0;
-                progressBar.style.width = `${curPercent}%`;
-                progressPercentage.textContent = `${curPercent}%`;
-                progressCheckedText.textContent = `${packet.checked} / ${packet.total} gare verificate`;
-                progressMatchesText.textContent = `${foundMatches.length} ${foundMatches.length === 1 ? 'gara trovata' : 'gare trovate'}`;
                 break;
 
             case "complete":
@@ -607,10 +619,20 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `).join("");
 
+        const isIcron = (match.source || "").toUpperCase() === "ICRON";
+        const sourceBadge = isIcron 
+            ? `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300 tracking-wider">ICRON</span>`
+            : `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-300 tracking-wider">ENDU</span>`;
+        const verifyLabel = isIcron ? "Scheda ICRON" : "Verifica ENDU";
+        const verifyBtnClass = isIcron 
+            ? "px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold border border-amber-300 transition-colors flex items-center space-x-1"
+            : "px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold border border-emerald-200 transition-colors flex items-center space-x-1";
+
         card.innerHTML = `
             <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                 <div class="space-y-1.5">
                     <div class="flex items-center space-x-2">
+                        ${sourceBadge}
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-900 text-xs font-bold flex items-center space-x-1.5">
                             <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
                             <span>${escapeHtml(match.date_formatted)}</span>
@@ -625,9 +647,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 <div class="flex items-center space-x-2 shrink-0">
                     <a href="${escapeHtml(match.verify_url)}" target="_blank" rel="noopener noreferrer"
-                        class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold border border-emerald-200 transition-colors flex items-center space-x-1">
-                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
-                        <span>Verifica ENDU</span>
+                        class="${verifyBtnClass}">
+                        <i data-lucide="${isIcron ? 'external-link' : 'check-circle'}" class="w-3.5 h-3.5"></i>
+                        <span>${verifyLabel}</span>
                     </a>
                     <a href="${escapeHtml(match.event_url)}" target="_blank" rel="noopener noreferrer"
                         class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors flex items-center space-x-1">
@@ -849,12 +871,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 summary += `${idx + 1}. [${r.full_date || r.date + '/' + r.year}] ${r.discipline} a ${r.city} - Tempo: ${r.time} - Piazzamento: ${r.rank_cleaned || r.rank} (${r.category})\n`;
             });
         } else if (currentMode === "future") {
-            summary = `=== ISCRIZIONI FUTURE ENDU ===\n`;
+            summary = `=== ISCRIZIONI FUTURE (ENDU & ICRON) ===\n`;
             summary += `Criteri: Nome: ${firstNameInput.value || '-'} | Cognome: ${lastNameInput.value || '-'} | Società: ${teamCodeInput.value || '-'}\n`;
             summary += `Totale manifestazioni trovate: ${foundMatches.length}\n\n`;
 
             foundMatches.forEach((ev, idx) => {
-                summary += `${idx + 1}. ${ev.name} (${ev.date_formatted}) - ${ev.location_formatted}\n`;
+                const srcBadge = ev.source ? `[${ev.source}] ` : "";
+                summary += `${idx + 1}. ${srcBadge}${ev.name} (${ev.date_formatted}) - ${ev.location_formatted}\n`;
                 ev.entrants.forEach(ent => {
                     summary += `   • Atleta: ${ent.full_name}`;
                     if (ent.bib) summary += ` | Pettorale: #${ent.bib}`;
@@ -862,7 +885,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (ent.course_name) summary += ` | Gara: ${ent.course_name}`;
                     summary += `\n`;
                 });
-                summary += `   Verifica ENDU: ${ev.verify_url}\n\n`;
+                summary += `   Link verifica: ${ev.verify_url}\n\n`;
             });
         } else {
             summary = `=== RISULTATI STORICI GARE ENDU ===\n`;

@@ -108,6 +108,45 @@ def test_routes():
     assert "1h44:39" in race_vic["time"]
     print(f"   FIDAL search OK! Verified Vicenza 2019: {race_vic['full_date']} {race_vic['time']} ({race_vic['rank_cleaned']})")
 
+    print("12. Testing ICRON search for Carlo Croci ...")
+    r_icron = client.get("/api/search?first_name=Carlo&last_name=Croci&platform=icron&months=12")
+    assert r_icron.status_code == 200
+    d_icron = r_icron.json()
+    assert d_icron["success"] is True
+    assert d_icron["matches_count"] >= 1
+    assert d_icron["results"][0]["source"] == "ICRON"
+    assert "FOLIGNO" in d_icron["results"][0]["name"].upper()
+    print(f"   ICRON search OK! Found {d_icron['matches_count']} matches (Sample: {d_icron['results'][0]['name']} - {d_icron['results'][0]['entrants'][0]['full_name']})")
+
+    print("13. Testing combined SSE stream (ENDU + ICRON) ...")
+    with client.stream("GET", "/api/search/stream?first_name=Carlo&last_name=Croci&platform=all&months=12&event_name=Foligno") as s_res:
+        assert s_res.status_code == 200
+        packets = []
+        for line in s_res.iter_lines():
+            if line and line.startswith("data: "):
+                import json
+                p = json.loads(line[6:])
+                packets.append(p)
+        assert len(packets) >= 2
+        init_pkt = packets[0]
+        assert init_pkt["type"] == "init"
+        match_pkts = [p for p in packets if p.get("type") == "match"]
+        assert len(match_pkts) >= 1
+        assert match_pkts[0]["match"]["source"] == "ICRON"
+        print(f"   Combined SSE stream OK! Verified ICRON match in live stream.")
+
+    print("14. Testing ICRON search for team_code=vi654 (Vicenza Runners) ...")
+    r_team = client.get("/api/search?team_code=vi654&platform=icron&months=5")
+    assert r_team.status_code == 200
+    d_team = r_team.json()
+    assert d_team["success"] is True
+    assert d_team["matches_count"] >= 1
+    # Check that iRun21 is found with Danny Marchesan
+    irun = next((m for m in d_team["results"] if "irun" in m["name"].lower() or "vicenza" in m["name"].lower()), None)
+    assert irun is not None
+    assert any("MARCHESAN" in ent["full_name"].upper() for ent in irun["entrants"])
+    print(f"   ICRON team search OK! Found {d_team['matches_count']} races for vi654 including {irun['name']}.")
+
     print("\n>>> ALL TESTS PASSED SUCCESSFULLY! <<<")
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import os
+import time
 import webbrowser
 from typing import Optional
 
@@ -9,8 +10,10 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+import httpx
 
-from backend.endu_client import EnduClient
+from backend.endu_client import EnduClient, DEFAULT_HEADERS as ENDU_DEFAULT_HEADERS
+from backend.icron_client import IcronClient, DEFAULT_HEADERS as ICRON_DEFAULT_HEADERS
 from backend.fidal_client import FidalClient, FidalSearchResponse
 from backend.models import CalendarStatusResponse, PastResultsSearchResponse, SearchResponse
 
@@ -18,9 +21,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger("endu_tool")
 
 app = FastAPI(
-    title="ENDU Road Running Registration Checker & Results",
-    description="Applicazione locale per verificare le iscrizioni, consultare lo storico risultati ENDU e l'archivio carriera FIDAL/TDS di Corsa su Strada.",
-    version="3.0.0"
+    title="ENDU & ICRON Road Running Checker, Results & FIDAL Archive",
+    description="Applicazione locale per verificare le iscrizioni su ENDU e ICRON, consultare lo storico risultati ENDU e l'archivio carriera FIDAL/TDS di Corsa su Strada.",
+    version="3.1.0"
 )
 
 # Abilita CORS per uso locale
@@ -32,8 +35,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Istanza del client ENDU singleton con semaforo a 8 connessioni contemporanee
+# Istanze dei client singleton con semaforo di concorrenza
 endu_client = EnduClient(concurrency_limit=8, cache_ttl_seconds=3600)
+icron_client = IcronClient(cache_ttl_seconds=3600, max_concurrency=8)
 fidal_client = FidalClient(cache_ttl_seconds=3600)
 
 # Monta le risorse statiche (CSS, JS)
@@ -53,24 +57,44 @@ async def serve_index():
 
 @app.get("/api/calendar/status", response_model=CalendarStatusResponse)
 async def get_calendar_status():
-    """Restituisce lo stato corrente della cache del calendario gare running."""
-    return endu_client.get_cache_status()
+    """Restituisce lo stato corrente della cache del calendario gare running di ENDU e ICRON."""
+    endu_status = endu_client.get_cache_status()
+    icron_status = icron_client.get_cache_status()
+    total = endu_status.total_events + icron_status["total_events"]
+    is_cached = endu_status.is_cached and icron_status["is_cached"]
+    return CalendarStatusResponse(
+        is_cached=is_cached,
+        total_events=total,
+        total_endu_events=endu_status.total_events,
+        total_icron_events=icron_status["total_events"],
+        date_from=endu_status.date_from,
+        date_to=endu_status.date_to,
+        cached_at=endu_status.cached_at,
+        ttl_seconds_remaining=endu_status.ttl_seconds_remaining
+    )
 
 
 @app.post("/api/calendar/refresh")
 async def refresh_calendar(months: int = Query(5, ge=1, le=12)):
-    """Invalida la cache locale e riscarica gli eventi di corsa su strada da ENDU."""
+    """Invalida la cache locale e riscarica gli eventi di corsa su strada sia da ENDU che da ICRON."""
     try:
-        events, date_from, date_to = await endu_client.get_road_running_events(
+        events_e, df_e, dt_e = await endu_client.get_road_running_events(
             months=months,
             force_refresh=True
         )
+        events_i, df_i, dt_i = await icron_client.get_running_events(
+            months=months,
+            force_refresh=True
+        )
+        total = len(events_e) + len(events_i)
         return {
             "success": True,
-            "message": f"Calendario aggiornato con successo: {len(events)} manifestazioni running caricate.",
-            "total_events": len(events),
-            "date_from": date_from,
-            "date_to": date_to
+            "message": f"Calendario aggiornato con successo: {len(events_e)} gare ENDU + {len(events_i)} gare ICRON ({total} totali).",
+            "total_events": total,
+            "total_endu": len(events_e),
+            "total_icron": len(events_i),
+            "date_from": df_e or df_i,
+            "date_to": dt_e or dt_i
         }
     except Exception as e:
         logger.error(f"Errore durante l'aggiornamento del calendario: {e}")
@@ -85,10 +109,11 @@ async def search_registrations(
     months: int = Query(5, ge=1, le=12, description="Numero di mesi di orizzonte temporale"),
     exact_date: Optional[str] = Query(None, description="Data specifica (YYYY-MM-DD)"),
     event_name: Optional[str] = Query(None, description="Nome o parola chiave della manifestazione"),
+    platform: Optional[str] = Query("all", description="Piattaforma: 'all', 'endu', o 'icron'"),
     force_refresh: bool = Query(False, description="Forza il refresh del calendario eventi")
 ):
     """
-    Endpoint REST sincrono: scansiona tutti gli eventi running nei prossimi N mesi
+    Endpoint REST sincrono: scansiona gli eventi running nei prossimi N mesi (ENDU e/o ICRON)
     e restituisce l'elenco delle gare a cui l'atleta o la società è iscritta.
     """
     clean_first = first_name.strip() if first_name else ""
@@ -96,6 +121,7 @@ async def search_registrations(
     clean_team = team_code.strip() if team_code else ""
     clean_date = exact_date.strip() if exact_date else ""
     clean_event = event_name.strip() if event_name else ""
+    clean_platform = (platform or "all").strip().lower()
 
     if not clean_first and not clean_last and not clean_team:
         raise HTTPException(
@@ -103,16 +129,86 @@ async def search_registrations(
             detail="Specificare almeno il Cognome, il Nome oppure il Codice Società per effettuare la verifica."
         )
 
+    start_time = time.time()
     try:
-        return await endu_client.scan_events(
-            first_name=clean_first or None,
-            last_name=clean_last or None,
-            team_code=clean_team or None,
-            months=months,
-            exact_date=clean_date or None,
-            event_name=clean_event or None,
-            force_refresh=force_refresh
-        )
+        if clean_platform == "endu":
+            return await endu_client.scan_events(
+                first_name=clean_first or None,
+                last_name=clean_last or None,
+                team_code=clean_team or None,
+                months=months,
+                exact_date=clean_date or None,
+                event_name=clean_event or None,
+                force_refresh=force_refresh
+            )
+        elif clean_platform == "icron":
+            return await icron_client.scan_events(
+                first_name=clean_first or None,
+                last_name=clean_last or None,
+                team_code=clean_team or None,
+                months=months,
+                exact_date=clean_date or None,
+                event_name=clean_event or None,
+                force_refresh=force_refresh
+            )
+        else:
+            # Piattaforme combinate (ENDU + ICRON)
+            res_endu, res_icron = await asyncio.gather(
+                endu_client.scan_events(
+                    first_name=clean_first or None,
+                    last_name=clean_last or None,
+                    team_code=clean_team or None,
+                    months=months,
+                    exact_date=clean_date or None,
+                    event_name=clean_event or None,
+                    force_refresh=force_refresh
+                ),
+                icron_client.scan_events(
+                    first_name=clean_first or None,
+                    last_name=clean_last or None,
+                    team_code=clean_team or None,
+                    months=months,
+                    exact_date=clean_date or None,
+                    event_name=clean_event or None,
+                    force_refresh=force_refresh
+                ),
+                return_exceptions=True
+            )
+
+            all_matches = []
+            total_scanned = 0
+            date_from = ""
+            date_to = ""
+
+            if isinstance(res_endu, SearchResponse):
+                all_matches.extend(res_endu.results)
+                total_scanned += res_endu.total_events_scanned
+                date_from = res_endu.date_from
+                date_to = res_endu.date_to
+            elif isinstance(res_endu, Exception):
+                logger.error(f"Errore scansione ENDU: {res_endu}")
+
+            if isinstance(res_icron, SearchResponse):
+                all_matches.extend(res_icron.results)
+                total_scanned += res_icron.total_events_scanned
+                if not date_from:
+                    date_from = res_icron.date_from
+                if not date_to:
+                    date_to = res_icron.date_to
+            elif isinstance(res_icron, Exception):
+                logger.error(f"Errore scansione ICRON: {res_icron}")
+
+            all_matches.sort(key=lambda m: m.date_from)
+            return SearchResponse(
+                success=True,
+                total_events_scanned=total_scanned,
+                matches_count=len(all_matches),
+                date_from=date_from,
+                date_to=date_to,
+                elapsed_seconds=round(time.time() - start_time, 2),
+                results=all_matches
+            )
+
     except Exception as e:
         logger.error(f"Errore durante la scansione: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -126,17 +222,19 @@ async def search_registrations_stream(
     months: int = Query(5, ge=1, le=12),
     exact_date: Optional[str] = Query(None),
     event_name: Optional[str] = Query(None),
+    platform: Optional[str] = Query("all"),
     force_refresh: bool = Query(False)
 ):
     """
     Endpoint Server-Sent Events (SSE): trasmette in tempo reale il progresso della scansione
-    e ogni corrispondenza trovata direttamente al browser.
+    e ogni corrispondenza trovata (da ENDU e/o ICRON) direttamente al browser.
     """
     clean_first = first_name.strip() if first_name else ""
     clean_last = last_name.strip() if last_name else ""
     clean_team = team_code.strip() if team_code else ""
     clean_date = exact_date.strip() if exact_date else ""
     clean_event = event_name.strip() if event_name else ""
+    clean_platform = (platform or "all").strip().lower()
 
     if not clean_first and not clean_last and not clean_team:
         async def err_generator():
@@ -148,16 +246,105 @@ async def search_registrations_stream(
         return StreamingResponse(err_generator(), media_type="text/event-stream")
 
     async def sse_event_generator():
-        async for packet in endu_client.scan_events_stream(
-            first_name=clean_first or None,
-            last_name=clean_last or None,
-            team_code=clean_team or None,
-            months=months,
-            exact_date=clean_date or None,
-            event_name=clean_event or None,
-            force_refresh=force_refresh
-        ):
-            yield f"data: {json.dumps(packet, ensure_ascii=False)}\n\n"
+        start_time = time.time()
+        events_endu = []
+        events_icron = []
+        date_from = ""
+        date_to = ""
+
+        # Recupera manifestazioni ENDU
+        if clean_platform in ["all", "endu"]:
+            try:
+                events_endu, date_from, date_to = await endu_client.get_road_running_events(
+                    months=months,
+                    exact_date=clean_date or None,
+                    event_name=clean_event or None,
+                    force_refresh=force_refresh
+                )
+            except Exception as e:
+                logger.error(f"Errore nel recupero calendario ENDU: {e}")
+
+        # Recupera manifestazioni ICRON
+        if clean_platform in ["all", "icron"]:
+            try:
+                events_icron, df_i, dt_i = await icron_client.get_running_events(
+                    months=months,
+                    exact_date=clean_date or None,
+                    event_name=clean_event or None,
+                    force_refresh=force_refresh
+                )
+                if not date_from:
+                    date_from = df_i
+                if not date_to:
+                    date_to = dt_i
+            except Exception as e:
+                logger.error(f"Errore nel recupero calendario ICRON: {e}")
+
+        total_events = len(events_endu) + len(events_icron)
+        init_payload = {
+            "type": "init",
+            "total": total_events,
+            "total_endu": len(events_endu),
+            "total_icron": len(events_icron),
+            "date_from": date_from,
+            "date_to": date_to
+        }
+        yield f"data: {json.dumps(init_payload, ensure_ascii=False)}\n\n"
+
+        if total_events == 0:
+            yield f"data: {json.dumps({'type': 'complete', 'total_scanned': 0, 'total_matches': 0, 'elapsed_seconds': round(time.time() - start_time, 2)}, ensure_ascii=False)}\n\n"
+            return
+
+        scanned_counter = 0
+        matches_count = 0
+        sem_endu = asyncio.Semaphore(8)
+        sem_icron = asyncio.Semaphore(8)
+
+        async with httpx.AsyncClient(headers=ENDU_DEFAULT_HEADERS, timeout=12.0) as client_e, \
+                   httpx.AsyncClient(headers=ICRON_DEFAULT_HEADERS, timeout=12.0) as client_i:
+
+            async def scan_single_endu(ev):
+                m = await endu_client.check_single_event(
+                    client_e, sem_endu, ev, clean_first or None, clean_last or None, clean_team or None
+                )
+                return ("ENDU", ev.get("name") or "Gara ENDU", m)
+
+            async def scan_single_icron(ev):
+                m = await icron_client.check_event_entrants(
+                    client_i, sem_icron, ev, clean_first or None, clean_last or None, clean_team or None
+                )
+                return ("ICRON", ev.get("descrizione") or "Gara ICRON", m)
+
+            tasks = [scan_single_endu(ev) for ev in events_endu] + [scan_single_icron(ev) for ev in events_icron]
+
+            for coro in asyncio.as_completed(tasks):
+                source, ev_name, match = await coro
+                scanned_counter += 1
+                if match:
+                    matches_count += 1
+                    match_payload = {
+                        "type": "match",
+                        "match": match.model_dump()
+                    }
+                    yield f"data: {json.dumps(match_payload, ensure_ascii=False)}\n\n"
+
+                progress_payload = {
+                    "type": "progress",
+                    "scanned": scanned_counter,
+                    "total": total_events,
+                    "matches": matches_count,
+                    "current_event": ev_name,
+                    "source": source
+                }
+                yield f"data: {json.dumps(progress_payload, ensure_ascii=False)}\n\n"
+
+        complete_payload = {
+            "type": "complete",
+            "total_scanned": total_events,
+            "total_matches": matches_count,
+            "elapsed_seconds": round(time.time() - start_time, 2)
+        }
+        yield f"data: {json.dumps(complete_payload, ensure_ascii=False)}\n\n"
 
     return StreamingResponse(
         sse_event_generator(),

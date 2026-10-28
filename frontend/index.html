@@ -32,7 +32,7 @@
                     <span class="w-2 h-2 rounded-full bg-slate-400" id="cacheIndicator"></span>
                     <span id="cacheText">Controllo calendario...</span>
                 </div>
-                <button id="btnRefreshCalendar" title="Forza aggiornamento del calendario gare da ENDU" class="p-2 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-slate-100 transition-colors flex items-center space-x-1.5">
+                <button id="btnRefreshCalendar" title="Forza aggiornamento del calendario gare da ENDU e ICRON" class="p-2 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-slate-100 transition-colors flex items-center space-x-1.5">
                     <i data-lucide="refresh-cw" class="w-4 h-4" id="refreshIcon"></i>
                     <span class="hidden md:inline font-medium">Aggiorna Gare</span>
                 </button>
@@ -51,12 +51,12 @@
             <div class="relative z-10 max-w-2xl space-y-2">
                 <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 text-xs font-semibold tracking-wide uppercase border border-emerald-500/30">
                     <i data-lucide="zap" class="w-3.5 h-3.5"></i>
-                    <span id="bannerBadgeText">Scansione Diretta API ENDU</span>
+                    <span id="bannerBadgeText">Scansione Diretta API ENDU & ICRON</span>
                 </div>
                 <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight" id="bannerTitle">Verifica Iscrizioni Gare Future</h2>
                 <p class="text-slate-300 text-sm sm:text-base leading-relaxed" id="bannerDesc">
                     Inserisci il Nome e Cognome del podista oppure il Codice Società per scansionare istantaneamente
-                    le manifestazioni running dei prossimi mesi su <span class="text-emerald-300 font-medium">endu.net</span>.
+                    le manifestazioni running dei prossimi mesi su <span class="text-emerald-300 font-medium">ENDU e ICRON</span>.
                 </p>
             </div>
         </div>
@@ -161,14 +161,14 @@
                         </span>
                         <span class="text-[11px] text-slate-400 hidden sm:inline">Restringe la ricerca a un singolo giorno o a una manifestazione precisa</span>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <!-- Data Specifica -->
                         <div class="space-y-1.5">
                             <div class="flex items-center justify-between">
                                 <label for="exactDate" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
                                     Data Specifica
                                 </label>
-                                <span class="text-[11px] text-slate-400">es. giorno esatto della gara</span>
+                                <span class="text-[11px] text-slate-400">es. giorno gara</span>
                             </div>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -191,8 +191,32 @@
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                     <i data-lucide="flag" class="w-4 h-4"></i>
                                 </div>
-                                <input type="text" id="eventName" name="eventName" placeholder="es. Moonlight, Roma, Passatore..."
+                                <input type="text" id="eventName" name="eventName" placeholder="es. Foligno, Vicenza, Roma..."
                                     class="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-medium text-slate-900 placeholder:text-slate-400">
+                            </div>
+                        </div>
+
+                        <!-- Piattaforma di Ricerca -->
+                        <div class="space-y-1.5" id="platformFilterContainer">
+                            <div class="flex items-center justify-between">
+                                <label for="platformSelect" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                    Piattaforma
+                                </label>
+                                <span class="text-[11px] text-slate-400">circuito</span>
+                            </div>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="layers" class="w-4 h-4"></i>
+                                </div>
+                                <select id="platformSelect" name="platform"
+                                    class="w-full pl-10 pr-9 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-medium text-slate-900 appearance-none cursor-pointer">
+                                    <option value="all" selected>Tutte (ENDU + ICRON)</option>
+                                    <option value="endu">Solo ENDU</option>
+                                    <option value="icron">Solo ICRON</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                </div>
                             </div>
                         </div>
                     </div>

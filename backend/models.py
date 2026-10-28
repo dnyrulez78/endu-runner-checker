@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 from pydantic import BaseModel, Field
 
 
@@ -18,16 +18,17 @@ class EntrantResult(BaseModel):
 
 class EventMatch(BaseModel):
     """Rappresenta una gara futura in cui è presente l'atleta."""
-    event_id: int = Field(..., description="ID identificativo univoco evento ENDU")
+    event_id: Union[int, str] = Field(..., description="ID identificativo univoco evento")
     name: str = Field(..., description="Nome ufficiale della manifestazione")
     slug: str = Field(..., description="Slug URL della manifestazione")
-    event_url: str = Field(..., description="Link diretto alla pagina ufficiale ENDU")
-    verify_url: str = Field(..., description="Link diretto alla pagina di verifica iscrizione ENDU")
+    event_url: str = Field(..., description="Link diretto alla pagina ufficiale")
+    verify_url: str = Field(..., description="Link diretto alla pagina di verifica iscrizione")
     date_from: str = Field(..., description="Data/ora di inizio evento (ISO)")
     date_formatted: str = Field(..., description="Data formattata (GG Mmm AAAA)")
     city: Optional[str] = Field(None, description="Città ospitante")
-    district: Optional[str] = Field(None, description="Provincia")
+    district: Optional[str] = Field(None, description="Provincia o Regione")
     location_formatted: str = Field(..., description="Località formattata")
+    source: str = Field("ENDU", description="Piattaforma: ENDU o ICRON")
     entrants: List[EntrantResult] = Field(default_factory=list, description="Elenco atleti corrispondenti")
 
 
@@ -47,6 +48,8 @@ class CalendarStatusResponse(BaseModel):
     """Stato della cache locale del calendario gare running."""
     is_cached: bool
     total_events: int
+    total_endu_events: Optional[int] = None
+    total_icron_events: Optional[int] = None
     date_from: Optional[str] = None
     date_to: Optional[str] = None
     cached_at: Optional[str] = None
