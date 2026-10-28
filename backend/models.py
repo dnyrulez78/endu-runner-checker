@@ -28,7 +28,7 @@ class EventMatch(BaseModel):
     city: Optional[str] = Field(None, description="Città ospitante")
     district: Optional[str] = Field(None, description="Provincia o Regione")
     location_formatted: str = Field(..., description="Località formattata")
-    source: str = Field("ENDU", description="Piattaforma: ENDU o ICRON")
+    source: str = Field("ENDU", description="Piattaforma: ENDU, ICRON o WEDOSPORT")
     entrants: List[EntrantResult] = Field(default_factory=list, description="Elenco atleti corrispondenti")
 
 
@@ -50,6 +50,7 @@ class CalendarStatusResponse(BaseModel):
     total_events: int
     total_endu_events: Optional[int] = None
     total_icron_events: Optional[int] = None
+    total_wedosport_events: Optional[int] = None
     date_from: Optional[str] = None
     date_to: Optional[str] = None
     cached_at: Optional[str] = None
@@ -103,3 +104,41 @@ class PastResultsSearchResponse(BaseModel):
     elapsed_seconds: float
     results: List[PastEventResultMatch]
     message: Optional[str] = None
+
+
+# --- Modelli per l'Archivio Trail Running (Wedosport) ---
+
+class WedosportRaceResult(BaseModel):
+    """Rappresenta una gara trail disputata dall'atleta su Wedosport (dal 2004 a oggi)."""
+    sport: str = Field("Trail Running", description="Disciplina (Trail Running, Skyrunning, ecc.)")
+    date: str = Field(..., description="Data della gara (GG/MM/AAAA)")
+    year: Optional[int] = Field(None, description="Anno solare")
+    race_name: str = Field(..., description="Nome della manifestazione")
+    distance_name: str = Field("", description="Nome percorso / distanza")
+    distance_km: str = Field("", description="Chilometraggio")
+    rank: str = Field("", description="Posizione assoluta")
+    rank_cleaned: str = Field("", description="Posizione formattata (es. 88°)")
+    time: str = Field(..., description="Tempo finale")
+    team: Optional[str] = Field(None, description="Società sportiva")
+    classifica_url: Optional[str] = Field(None, description="Link alla classifica ufficiale")
+
+
+class WedosportAthleteProfile(BaseModel):
+    """Profilo dell'atleta estratto dall'archivio gare Wedosport."""
+    name: str = Field(..., description="Nome e cognome dell'atleta")
+    athlete_code: Optional[str] = Field(None, description="Codice univoco atleta")
+    birth_year: Optional[int] = Field(None, description="Anno di nascita")
+    society: Optional[str] = Field(None, description="Società di appartenenza")
+    total_races: int = Field(0, description="Numero totale di gare disputate")
+    results: List[WedosportRaceResult] = Field(default_factory=list, description="Elenco gare disputate")
+
+
+class WedosportCareerSearchResponse(BaseModel):
+    """Risposta per la ricerca carriera e risultati trail su Wedosport."""
+    success: bool
+    athletes_found: int
+    athlete: Optional[WedosportAthleteProfile] = None
+    other_candidates: List[dict] = Field(default_factory=list)
+    elapsed_seconds: float
+    message: Optional[str] = None
+

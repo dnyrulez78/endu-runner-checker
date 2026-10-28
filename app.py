@@ -14,16 +14,22 @@ import httpx
 
 from backend.endu_client import EnduClient, DEFAULT_HEADERS as ENDU_DEFAULT_HEADERS
 from backend.icron_client import IcronClient, DEFAULT_HEADERS as ICRON_DEFAULT_HEADERS
+from backend.wedosport_client import WedosportClient, DEFAULT_HEADERS as WEDOSPORT_DEFAULT_HEADERS
 from backend.fidal_client import FidalClient, FidalSearchResponse
-from backend.models import CalendarStatusResponse, PastResultsSearchResponse, SearchResponse
+from backend.models import (
+    CalendarStatusResponse,
+    PastResultsSearchResponse,
+    SearchResponse,
+    WedosportCareerSearchResponse
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("endu_tool")
 
 app = FastAPI(
-    title="ENDU & ICRON Road Running Checker, Results & FIDAL Archive",
-    description="Applicazione locale per verificare le iscrizioni su ENDU e ICRON, consultare lo storico risultati ENDU e l'archivio carriera FIDAL/TDS di Corsa su Strada.",
-    version="3.1.0"
+    title="ENDU, ICRON & Wedosport Road & Trail Running Checker",
+    description="Applicazione locale per verificare le iscrizioni su ENDU, ICRON e Wedosport, consultare lo storico risultati ENDU, l'archivio federale FIDAL/TDS e la carriera Trail Running Wedosport.",
+    version="3.2.0"
 )
 
 # Abilita CORS per uso locale
@@ -38,6 +44,7 @@ app.add_middleware(
 # Istanze dei client singleton con semaforo di concorrenza
 endu_client = EnduClient(concurrency_limit=8, cache_ttl_seconds=3600)
 icron_client = IcronClient(cache_ttl_seconds=3600, max_concurrency=8)
+wedosport_client = WedosportClient(cache_ttl_seconds=3600, max_concurrency=6)
 fidal_client = FidalClient(cache_ttl_seconds=3600)
 
 # Monta le risorse statiche (CSS, JS)
@@ -57,16 +64,18 @@ async def serve_index():
 
 @app.get("/api/calendar/status", response_model=CalendarStatusResponse)
 async def get_calendar_status():
-    """Restituisce lo stato corrente della cache del calendario gare running di ENDU e ICRON."""
+    """Restituisce lo stato corrente della cache del calendario gare running di ENDU, ICRON e Wedosport."""
     endu_status = endu_client.get_cache_status()
     icron_status = icron_client.get_cache_status()
-    total = endu_status.total_events + icron_status["total_events"]
-    is_cached = endu_status.is_cached and icron_status["is_cached"]
+    wedo_status = wedosport_client.get_cache_status()
+    total = endu_status.total_events + icron_status["total_events"] + wedo_status["total_events"]
+    is_cached = endu_status.is_cached and icron_status["is_cached"] and wedo_status["is_cached"]
     return CalendarStatusResponse(
         is_cached=is_cached,
         total_events=total,
         total_endu_events=endu_status.total_events,
         total_icron_events=icron_status["total_events"],
+        total_wedosport_events=wedo_status["total_events"],
         date_from=endu_status.date_from,
         date_to=endu_status.date_to,
         cached_at=endu_status.cached_at,
@@ -76,7 +85,7 @@ async def get_calendar_status():
 
 @app.post("/api/calendar/refresh")
 async def refresh_calendar(months: int = Query(5, ge=1, le=12)):
-    """Invalida la cache locale e riscarica gli eventi di corsa su strada sia da ENDU che da ICRON."""
+    """Invalida la cache locale e riscarica gli eventi sia da ENDU che da ICRON e Wedosport."""
     try:
         events_e, df_e, dt_e = await endu_client.get_road_running_events(
             months=months,
@@ -86,15 +95,20 @@ async def refresh_calendar(months: int = Query(5, ge=1, le=12)):
             months=months,
             force_refresh=True
         )
-        total = len(events_e) + len(events_i)
+        events_w, df_w, dt_w = await wedosport_client.get_open_events(
+            months=months,
+            force_refresh=True
+        )
+        total = len(events_e) + len(events_i) + len(events_w)
         return {
             "success": True,
-            "message": f"Calendario aggiornato con successo: {len(events_e)} gare ENDU + {len(events_i)} gare ICRON ({total} totali).",
+            "message": f"Calendario aggiornato con successo: {len(events_e)} gare ENDU + {len(events_i)} gare ICRON + {len(events_w)} gare Wedosport ({total} totali).",
             "total_events": total,
             "total_endu": len(events_e),
             "total_icron": len(events_i),
-            "date_from": df_e or df_i,
-            "date_to": dt_e or dt_i
+            "total_wedosport": len(events_w),
+            "date_from": df_e or df_i or df_w,
+            "date_to": dt_e or dt_i or dt_w
         }
     except Exception as e:
         logger.error(f"Errore durante l'aggiornamento del calendario: {e}")
@@ -109,11 +123,11 @@ async def search_registrations(
     months: int = Query(5, ge=1, le=12, description="Numero di mesi di orizzonte temporale"),
     exact_date: Optional[str] = Query(None, description="Data specifica (YYYY-MM-DD)"),
     event_name: Optional[str] = Query(None, description="Nome o parola chiave della manifestazione"),
-    platform: Optional[str] = Query("all", description="Piattaforma: 'all', 'endu', o 'icron'"),
+    platform: Optional[str] = Query("all", description="Piattaforma: 'all', 'endu', 'icron', o 'wedosport'"),
     force_refresh: bool = Query(False, description="Forza il refresh del calendario eventi")
 ):
     """
-    Endpoint REST sincrono: scansiona gli eventi running nei prossimi N mesi (ENDU e/o ICRON)
+    Endpoint REST sincrono: scansiona gli eventi running nei prossimi N mesi (ENDU, ICRON e/o Wedosport)
     e restituisce l'elenco delle gare a cui l'atleta o la società è iscritta.
     """
     clean_first = first_name.strip() if first_name else ""
@@ -151,9 +165,19 @@ async def search_registrations(
                 event_name=clean_event or None,
                 force_refresh=force_refresh
             )
+        elif clean_platform == "wedosport":
+            return await wedosport_client.scan_events(
+                first_name=clean_first or None,
+                last_name=clean_last or None,
+                team_code=clean_team or None,
+                months=months,
+                exact_date=clean_date or None,
+                event_name=clean_event or None,
+                force_refresh=force_refresh
+            )
         else:
-            # Piattaforme combinate (ENDU + ICRON)
-            res_endu, res_icron = await asyncio.gather(
+            # Piattaforme combinate (ENDU + ICRON + Wedosport)
+            res_endu, res_icron, res_wedo = await asyncio.gather(
                 endu_client.scan_events(
                     first_name=clean_first or None,
                     last_name=clean_last or None,
@@ -164,6 +188,15 @@ async def search_registrations(
                     force_refresh=force_refresh
                 ),
                 icron_client.scan_events(
+                    first_name=clean_first or None,
+                    last_name=clean_last or None,
+                    team_code=clean_team or None,
+                    months=months,
+                    exact_date=clean_date or None,
+                    event_name=clean_event or None,
+                    force_refresh=force_refresh
+                ),
+                wedosport_client.scan_events(
                     first_name=clean_first or None,
                     last_name=clean_last or None,
                     team_code=clean_team or None,
@@ -198,6 +231,16 @@ async def search_registrations(
             elif isinstance(res_icron, Exception):
                 logger.error(f"Errore scansione ICRON: {res_icron}")
 
+            if isinstance(res_wedo, SearchResponse):
+                all_matches.extend(res_wedo.results)
+                total_scanned += res_wedo.total_events_scanned
+                if not date_from:
+                    date_from = res_wedo.date_from
+                if not date_to:
+                    date_to = res_wedo.date_to
+            elif isinstance(res_wedo, Exception):
+                logger.error(f"Errore scansione Wedosport: {res_wedo}")
+
             all_matches.sort(key=lambda m: m.date_from)
             return SearchResponse(
                 success=True,
@@ -227,7 +270,7 @@ async def search_registrations_stream(
 ):
     """
     Endpoint Server-Sent Events (SSE): trasmette in tempo reale il progresso della scansione
-    e ogni corrispondenza trovata (da ENDU e/o ICRON) direttamente al browser.
+    e ogni corrispondenza trovata (da ENDU, ICRON e/o Wedosport) direttamente al browser.
     """
     clean_first = first_name.strip() if first_name else ""
     clean_last = last_name.strip() if last_name else ""
@@ -249,6 +292,7 @@ async def search_registrations_stream(
         start_time = time.time()
         events_endu = []
         events_icron = []
+        events_wedo = []
         date_from = ""
         date_to = ""
 
@@ -280,12 +324,30 @@ async def search_registrations_stream(
             except Exception as e:
                 logger.error(f"Errore nel recupero calendario ICRON: {e}")
 
-        total_events = len(events_endu) + len(events_icron)
+        # Recupera manifestazioni Wedosport (solo quelle con lista iscritti pubblica)
+        if clean_platform in ["all", "wedosport"]:
+            try:
+                events_wedo_all, df_w, dt_w = await wedosport_client.get_open_events(
+                    months=months,
+                    exact_date=clean_date or None,
+                    event_name=clean_event or None,
+                    force_refresh=force_refresh
+                )
+                events_wedo = [e for e in events_wedo_all if e.get("has_public_list")]
+                if not date_from:
+                    date_from = df_w
+                if not date_to:
+                    date_to = dt_w
+            except Exception as e:
+                logger.error(f"Errore nel recupero calendario Wedosport: {e}")
+
+        total_events = len(events_endu) + len(events_icron) + len(events_wedo)
         init_payload = {
             "type": "init",
             "total": total_events,
             "total_endu": len(events_endu),
             "total_icron": len(events_icron),
+            "total_wedosport": len(events_wedo),
             "date_from": date_from,
             "date_to": date_to
         }
@@ -299,9 +361,11 @@ async def search_registrations_stream(
         matches_count = 0
         sem_endu = asyncio.Semaphore(8)
         sem_icron = asyncio.Semaphore(8)
+        sem_wedo = asyncio.Semaphore(6)
 
         async with httpx.AsyncClient(headers=ENDU_DEFAULT_HEADERS, timeout=12.0) as client_e, \
-                   httpx.AsyncClient(headers=ICRON_DEFAULT_HEADERS, timeout=12.0) as client_i:
+                   httpx.AsyncClient(headers=ICRON_DEFAULT_HEADERS, timeout=12.0) as client_i, \
+                   httpx.AsyncClient(headers=WEDOSPORT_DEFAULT_HEADERS, timeout=15.0) as client_w:
 
             async def scan_single_endu(ev):
                 m = await endu_client.check_single_event(
@@ -315,7 +379,17 @@ async def search_registrations_stream(
                 )
                 return ("ICRON", ev.get("descrizione") or "Gara ICRON", m)
 
-            tasks = [scan_single_endu(ev) for ev in events_endu] + [scan_single_icron(ev) for ev in events_icron]
+            async def scan_single_wedosport(ev):
+                m = await wedosport_client.check_event_entrants(
+                    client_w, sem_wedo, ev, clean_first or None, clean_last or None, clean_team or None
+                )
+                return ("WEDOSPORT", ev.get("name") or "Gara Wedosport", m)
+
+            tasks = (
+                [scan_single_endu(ev) for ev in events_endu] +
+                [scan_single_icron(ev) for ev in events_icron] +
+                [scan_single_wedosport(ev) for ev in events_wedo]
+            )
 
             for coro in asyncio.as_completed(tasks):
                 source, ev_name, match = await coro
@@ -488,6 +562,36 @@ async def search_fidal_athlete(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/api/wedosport/search", response_model=WedosportCareerSearchResponse)
+async def search_wedosport_career(
+    last_name: str = Query(..., description="Cognome dell'atleta"),
+    first_name: Optional[str] = Query(None, description="Nome dell'atleta (opzionale)"),
+    year: Optional[int] = Query(None, ge=2000, le=2035, description="Anno specifico (opzionale)"),
+    race_name: Optional[str] = Query(None, description="Nome gara o distanza (opzionale)")
+):
+    """
+    Interroga l'archivio Trail Running di Wedosport per recuperare la carriera,
+    il palmarès, i km percorsi, tempi e piazzamenti di un atleta (dal 2004 ad oggi).
+    """
+    clean_last = last_name.strip()
+    clean_first = first_name.strip() if first_name else None
+    clean_kw = race_name.strip() if race_name else None
+
+    if not clean_last:
+        raise HTTPException(status_code=400, detail="Inserire il cognome dell'atleta.")
+
+    try:
+        return await wedosport_client.search_athlete_career(
+            last_name=clean_last,
+            first_name=clean_first,
+            year=year,
+            race_name=clean_kw
+        )
+    except Exception as e:
+        logger.error(f"Errore nella ricerca Wedosport: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 def open_browser_delayed(url: str, delay: float = 1.0):
     """Apre automaticamente il browser predefinito dopo l'avvio del server."""
     async def _opener():
@@ -509,7 +613,7 @@ if __name__ == "__main__":
     local_url = f"http://{host}:{port}"
     
     print("\n" + "=" * 60)
-    print("    ENDU ROAD RUNNING CHECKER")
+    print("  🏃 ENDU, ICRON & WEDOSPORT RUNNER SCANNER (STRADA & TRAIL) 🏃")
     print("=" * 60)
     print("Server locale avviato con successo!")
     print(f"Apri il tuo browser all'indirizzo: {local_url}")

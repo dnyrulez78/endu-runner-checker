@@ -1,43 +1,46 @@
-# 🏃 ENDU & ICRON Road Running Checker, Results & FIDAL/TDS Archive (v3.1)
+# 🏃 ENDU, ICRON & Wedosport Runner Scanner, Results & Trail Archive (v3.2)
 
-Applicazione web locale moderna, veloce e pulita (backend Python + frontend HTML5/Tailwind CSS) per:
-1. **Verificare a quali manifestazioni future di Corsa su Strada** (road running) presenti su [ENDU](https://www.endu.net) e su [ICRON](https://www.icron.it) un atleta o una società risulta iscritto, con supporto a filtro unificato o per singola piattaforma.
-2. **Consultare lo storico dei risultati e tempi di gara su ENDU**, con filtri mirati per data specifica e nome gara/città, con storico a ritroso fino a oltre 10 anni (dal 2010 ad oggi).
-3. **Interrogare l'Archivio Carriera Ufficiale FIDAL & gare storiche TDS**, risolvendo il recupero di tutte le manifestazioni non presenti su ENDU (cronometrate da TDS, TDS-Live, SDAM, WinningTime, Icron), visualizzando la scheda atleta federale, la società di appartenenza e i Primati Personali (PB).
+Applicazione web locale moderna, veloce e pulita (backend Python FastAPI + frontend HTML5/Tailwind CSS) progettata per podisti, atleti e società sportive per:
+1. **Verificare a quali manifestazioni future di Corsa su Strada & Trail Running** (road running, trail, skyrunning) presenti su [ENDU](https://www.endu.net), [ICRON](https://www.icron.it) e [Wedosport](https://www.wedosport.net) un atleta o una squadra risulta iscritto, con supporto a filtro unificato o per singola piattaforma.
+2. **Consultare lo storico dei risultati e tempi di gara su ENDU**, con filtri mirati per data specifica e nome gara/città, con storico a ritroso fino a oltre 15 anni (dal 2010 ad oggi).
+3. **Interrogare l'Archivio Carriera Ufficiale FIDAL & gare storiche TDS**, risolvendo il recupero di tutte le manifestazioni competitive certificate non presenti su ENDU (cronometrate da TDS, TDS-Live, SDAM, WinningTime, Icron), visualizzando la scheda atleta federale, la società di appartenenza e i Primati Personali (PB).
+4. **Consultare la Carriera & Risultati Trail Running su Wedosport**, con accesso al palmarès completo di gare Trail, Ultra Trail, Skyrunning e Vertical dal **2004 ad oggi** (distanze, chilometri, tempi, piazzamenti e link alle classifiche ufficiali).
 
 <p align="center">
-  <img src="assets/screenshot.png" alt="Anteprima Interfaccia ENDU & ICRON Runner Scanner v3.1" width="900" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" />
+  <img src="assets/screenshot.png" alt="Anteprima Interfaccia ENDU, ICRON & Wedosport Runner Scanner v3.2" width="900" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" />
 </p>
 
 ---
 
-## 🌟 Novità Versione 3.1 & Caratteristiche Principali
+## 🌟 Novità Versione 3.2 & Caratteristiche Principali
 
-- **Supporto Multi-Piattaforma: ENDU + ICRON (Novità v3.1)**:
-  - Scansione parallela automatica delle manifestazioni presenti su **ICRON** (`icron.it`) oltre che su **ENDU** (`endu.net`).
-  - Interroga direttamente gli eventi podistici ICRON (es. *iRun21 La Mezza di Vicenza*, *Due Mari Marathon*, ecc.).
-  - Funzione "Verifica Iscrizioni" con supporto automatico sia ai cognomi sia ai **codici società FIDAL** (es. `vi654` convertito lato server in *Vicenza Runners*).
-  - **Filtro Piattaforma Dedicato**: possibilità di scegliere se cercare su *Tutte (ENDU + ICRON)*, *Solo ENDU* oppure *Solo ICRON*.
-  - Badge cromatici distintivi nelle card dei risultati (smeraldo per ENDU, ambra per ICRON) con link diretti alla pagina evento ufficiale.
-- **Tripla Modalità con Schede Dedicate**:
-  - **Iscrizioni Future**: Scansiona il calendario futuro per verificare la presenza dell'atleta o della squadra su ENDU e ICRON.
-  - **Risultati ENDU**: Cerca in quali gare passate l'atleta ha tagliato il traguardo e mostra i tempi ufficiali e i piazzamenti.
-  - **Archivio FIDAL / TDS**: Recupera la carriera agonistica ufficiale dell'atleta (Mezze Maratone, 10km, Maratone) e include tutte le manifestazioni cronometrate da **TDS**, **SDAM** o **WinningTime** fin dal 2010.
+- **Integrazione Piattaforma Trail Running Wedosport (Novità v3.2)**:
+  - Nuova scheda dedicata **Trail (Wedosport)** con archivio storico completo a partire dal **2004 ad oggi** (oltre 22 anni di manifestazioni montane).
+  - Scheda gara con dettagli completi: specialità (*Trail Running, Ultra Trail, Skyrunning, Vertical*), chilometraggio esatto, tempo finale, posizione assoluta e di genere, stato della prova e collegamento diretto alla graduatoria ufficiale Wedosport.
+  - Verifica automatica delle **iscrizioni future alle gare Wedosport** (parsing trasparente di `/lista-iscritti/{slug}`) sia nella ricerca combinata che con filtro dedicato.
+  - Badge cromatico distintivo ambra/montagna `WEDOSPORT` per identificare immediatamente gli eventi off-road.
+- **Supporto Multi-Piattaforma Unificato (ENDU + ICRON + Wedosport)**:
+  - Scansione parallela automatica delle manifestazioni presenti su **ENDU** (`endu.net`), **ICRON** (`icron.it`) e **Wedosport** (`wedosport.net`).
+  - Interroga direttamente gli eventi podistici ICRON (es. *iRun21 La Mezza di Vicenza*, *Due Mari Marathon*, ecc.) con supporto sia ai cognomi che ai **codici società FIDAL** (es. `vi654` convertito lato server in *Vicenza Runners*).
+  - **Filtro Piattaforma a 4 Opzioni**: possibilità di selezionare *Tutte le piattaforme*, *Solo ENDU*, *Solo ICRON* oppure *Solo Wedosport (Trail)*.
+- **Quattro Modalità con Schede Dedicate**:
+  - **Iscrizioni Future**: Scansiona il calendario per verificare la presenza dell'atleta o della squadra su ENDU, ICRON e Wedosport.
+  - **Risultati ENDU**: Cerca in quali gare su strada passate l'atleta ha tagliato il traguardo e mostra i tempi ufficiali, real-time e piazzamenti.
+  - **Archivio FIDAL / TDS**: Recupera la carriera agonistica federale certificata (Mezze Maratone, 10km, Maratone) e include tutte le manifestazioni cronometrate da **TDS**, **SDAM** o **WinningTime** fin dal 2010.
+  - **Trail (Wedosport)**: Consulta l'intera carriera off-road (Trail, Ultra, Skyrunning) dal 2004 ad oggi.
 - **Filtro Mirato per Nome Gara o Città**:
   - Consente di restringere la scansione a una singola manifestazione o località (es. digitando `jesolo` o `vicenza` vengono scansionate solo le gare pertinenti in 1-2 secondi anziché centinaia di eventi).
 - **Filtro per Data Specifica**:
   - Possibilità di inserire il giorno esatto di una gara (es. `25/05/2024`) per interrogare unicamente quell'evento.
-- **Archivio Storico Esteso fino al 2010**:
-  - Ricerca a ritroso fino a 15 anni per consultare qualsiasi edizione passata su ENDU e FIDAL.
 - **Scheda Atleta Federale & Primati Personali (PB)**:
   - Nella scheda FIDAL/TDS vengono evidenziati categoria, società sportiva, anno di nascita e i record personali (PB) certificati su ogni distanza.
-- **Nessun Login Richiesto**: L'accesso ai risultati digitali ufficiali e alle liste iscritti di ENDU e ICRON avviene in modalità pubblica on-demand.
-- **Filtro Esclusivo Corsa su Strada**: Interroga unicamente le manifestazioni `road_running` escludendo automaticamente trail, triathlon, ciclismo e nuoto.
-- **Alte Prestazioni & Concorrenza Asincrona**: Chiamate parallele con `httpx` gestite da semafori `asyncio` per verificare centinaia di manifestazioni in pochi secondi senza bloccare l'interfaccia.
+- **Nessun Login Richiesto**: L'accesso ai risultati digitali ufficiali e alle liste iscritti avviene in modalità pubblica on-demand.
+- **Alte Prestazioni & Concorrenza Asincrona**: Chiamate parallele con `httpx` gestite da semafori `asyncio` (6-8 connessioni simultanee) per verificare centinaia di manifestazioni in pochi secondi senza bloccare l'interfaccia.
 - **Barra di Avanzamento Real-Time (SSE)**: La scansione trasmette aggiornamenti in tempo reale via Server-Sent Events; ogni risultato trovato compare all'istante a schermo.
-- **Caching Intelligente in Memoria**: I calendari ENDU e ICRON vengono memorizzati temporaneamente in RAM per evitare chiamate ridondanti.
-- **Privacy & Nessun Database Permanente**: Rispetta la privacy, non memorizza anagrafiche sul disco; le verifiche avvengono in diretta on-demand.
-- **Esportazione Risultati**: Pulsante rapido per copiare il riepilogo testuale formattato degli arrivi o degli iscritti negli appunti.
+- **Caching Intelligente in Memoria RAM**: I calendari delle manifestazioni vengono memorizzati temporaneamente in memoria per evitare chiamate ripetute ai server.
+- **Privacy & Assenza di Database Permanente**: Nessun dato personale memorizzato su disco; tutto opera on-demand in memoria volatile.
+- **Esportazione Risultati**: Pulsante rapido per copiare il riepilogo testuale formattato negli appunti con un clic.
+- **Suite di Test Automatizzata**: 17 test integrati (`tests/test_api.py`) con copertura di tutti i provider e flussi di streaming.
 
 ---
 
@@ -45,25 +48,26 @@ Applicazione web locale moderna, veloce e pulita (backend Python + frontend HTML
 
 ```text
 C:\ENDU-Tool\
-├── app.py                   # Entry point FastAPI e server web locale (v3.1)
+├── app.py                   # Entry point FastAPI e server web locale (v3.2)
 ├── requirements.txt         # Dipendenze Python (fastapi, uvicorn, httpx)
 ├── avvia_app.bat            # Script di avvio rapido con doppio clic (Windows)
-├── README.md                # Documentazione e guida operativa
+├── README.md                # Documentazione tecnica e guida operativa
 ├── assets\
-│   └── screenshot.png       # Screenshot aggiornato dell'interfaccia utente
+│   └── screenshot.png       # Screenshot dell'interfaccia utente a 4 schede
 ├── backend\
 │   ├── __init__.py
 │   ├── endu_client.py       # Motore asincrono, cache in memoria e chiamate ad ENDU
 │   ├── icron_client.py      # Client asincrono e parser verifica iscritti ICRON
+│   ├── wedosport_client.py  # Client asincrono, archivio carriera e iscritti Wedosport Trail
 │   ├── fidal_client.py      # Client archivio atleti FIDAL, TDS e primati personali
 │   └── models.py            # Schemi dati Pydantic per validazione e tipizzazione
 ├── frontend\
-│   ├── index.html           # Interfaccia grafica reattiva a 3 schede con selettore piattaforma
+│   ├── index.html           # Interfaccia grafica reattiva a 4 schede con selettore piattaforma
 │   └── static\
 │       ├── app.js           # Logica client-side, gestione SSE e render delle card
 │       └── style.css        # Stili e animazioni personalizzate
 └── tests\
-    └── test_api.py          # Suite di 14 test automatizzati (ENDU, ICRON, FIDAL, SSE)
+    └── test_api.py          # Suite di 17 test automatizzati (ENDU, ICRON, Wedosport, FIDAL, SSE)
 ```
 
 ---
@@ -114,7 +118,7 @@ python app.py
 Vedrai comparire a schermo un messaggio simile a:
 ```text
 ============================================================
-🏃  ENDU & ICRON ROAD RUNNING CHECKER  🏃
+  🏃 ENDU, ICRON & WEDOSPORT RUNNER SCANNER (STRADA & TRAIL) 🏃
 ============================================================
 Server locale avviato con successo!
 Apri il tuo browser all'indirizzo: http://127.0.0.1:8000
@@ -130,35 +134,36 @@ Apri il tuo browser preferito e vai su:
 
 ## 🎯 Come Eseguire una Ricerca
 
-Nell'interfaccia web puoi alternare tra tre modalità tramite le schede in alto:
+Nell'interfaccia web puoi alternare tra quattro modalità tramite le schede in alto:
 
 ### 1. Scheda "Iscrizioni Future"
 1. Inserisci il **Cognome** (obbligatorio, es. `Rossi`, `Marchesan`, `Aiello`) e facoltativamente il **Nome**.
 2. **Codice o Società (opzionale)**: per filtrare la squadra (es. `vi654` o `Vicenza Runners`) o cercare tutti gli atleti del team.
 3. Seleziona l'orizzonte temporale (predefinito: **5 mesi**).
-4. **Piattaforma (Novità v3.1)**: seleziona se interrogare *Tutte (ENDU + ICRON)*, *Solo ENDU* oppure *Solo ICRON*.
-5. *(Opzionale)* Inserisci una data specifica o una parola chiave per la gara (es. `Vicenza` o `Foligno`).
+4. **Piattaforma**: seleziona se interrogare *Tutte le piattaforme*, *Solo ENDU*, *Solo ICRON* oppure *Solo Wedosport (Trail)*.
+5. *(Opzionale)* Inserisci una data specifica o una parola chiave per la gara (es. `Vicenza`, `Borno`, `Foligno`).
 6. Clicca su **Verifica Iscrizioni**: visualizzerai in tempo reale le manifestazioni a cui l'atleta risulta iscritto con il relativo pettorale assegnato e il badge della piattaforma.
 
 ### 2. Scheda "Risultati ENDU"
 1. Inserisci il **Cognome** e/o il **Nome** del podista.
 2. Seleziona l'intervallo storico desiderato (es. *Ultimi 12 mesi*, *Ultimi 24 mesi*, o qualsiasi anno dal *2010* al *2026*).
 3. *(Opzionale ma consigliato)* Inserisci il **Nome Gara o Città** (es. `Jesolo`) per limitare la scansione ai soli eventi pertinenti e ottenere i risultati all'istante.
-4. Clicca su **Cerca Risultati Storici**: visualizzerai tutte le gare concluse dall'atleta con:
-   - **Tempo ufficiale e Real time**
-   - **Posizione assoluta** all'arrivo
-   - **Posizione di categoria e di genere**
-   - **Distacco dal primo classificato**
-   - Link diretto alla **classifica ufficiale ENDU** per consultare intertempi e graduatorie complete.
+4. Clicca su **Cerca Risultati ENDU**: visualizzerai tutte le gare concluse dall'atleta con tempi ufficiali, real time, posizioni assolute, di genere e di categoria, e link alle classifiche ufficiali.
 
 ### 3. Scheda "Archivio FIDAL / TDS"
 1. Inserisci il **Cognome** (es. `Marchesan`) e facoltativamente il **Nome** (es. `Danny`).
 2. *(Opzionale)* Filtra per anno solare o per città/gara.
-3. Clicca su **Consulta Archivio FIDAL / TDS**:
+3. Clicca su **Cerca Carriera FIDAL**:
    - Visualizzerai la **scheda ufficiale dell'atleta** con data di nascita, categoria e società di tesseramento.
    - Il box **Primati Personali (PB)** certificati su 10km, Maratonina, Maratona.
-   - L'elenco cronologico di tutte le gare ufficiali disputate, incluse le gare cronometrate da **TDS** (come le storiche mezze maratone di Vicenza o Cittadella) che non sono reperibili su ENDU.
-   - Link diretto alla scheda atleta sul portale federale `fidal.it`.
+   - L'elenco cronologico di tutte le gare ufficiali disputate, incluse le gare cronometrate da **TDS** (come le storiche mezze maratone di Vicenza o Cittadella).
+
+### 4. Scheda "Trail (Wedosport)" (Novità v3.2)
+1. Inserisci il **Cognome** (es. `Marchesan`) e facoltativamente il **Nome** (es. `Danny`).
+2. *(Opzionale)* Filtra per anno specifico dal 2004 ad oggi.
+3. Clicca su **Cerca Trail Wedosport**:
+   - Visualizzerai l'elenco cronologico di tutte le gare di **Trail Running, Ultra Trail, Skyrunning e Vertical** disputate.
+   - Badge con chilometraggio (`Km`), tempo impiegato, posizione assoluta e di genere, stato della gara e link diretto alla classifica ufficiale Wedosport.
 
 ---
 
@@ -171,22 +176,47 @@ Nell'interfaccia web puoi alternare tra tre modalità tramite le schede in alto:
 - **API Risultati ENDU**:
   - Settings gara: `GET https://www.endu.net/api/results/events/{event_id}/settings`
   - Risultati atleti: `GET https://www.endu.net/api/results?editionId={edition_id}&raceId={race_id}&categoryId={cat_id}&optionId={opt_id}&searchText={search_text}`
-- **API Manifestazioni & Iscritti ICRON (Novità v3.1)**:
-  - Calendario manifestazioni: `POST https://www.icron.it/IcronNewGO/getOpenEvents` (filtrato per disciplina running e road racing)
-  - Verifica iscritti per atleta o codice società: `POST https://www.icron.it/IcronNewGO/getIscrizioni` con parametro mirato `criterio` (`squadra:{code}` o `cognome:{last}`), garantendo accesso pubblico trasparente senza autenticazione anche su gare con elenco generale protetto.
+- **API Manifestazioni & Iscritti ICRON**:
+  - Calendario manifestazioni: `POST https://www.icron.it/IcronNewGO/getOpenEvents` (filtrato per disciplina running e road racing).
+  - Verifica iscritti per atleta o codice società: `POST https://www.icron.it/IcronNewGO/getIscrizioni` con parametro `criterio` (`squadra:{code}` o `cognome:{last}`), garantendo accesso trasparente senza autenticazione anche su gare con elenco generale non aperto.
+- **Web Service Archivio & Iscritti Wedosport**:
+  - Ricerca atleti e ID anagrafico: `POST https://www.wedosport.net/ricerca_gare.cfm`
+  - Carriera agonistica Trail dal 2004: `POST https://www.wedosport.net/ricerca_atleta_dettaglio.cfm`
+  - Calendario manifestazioni aperte: `GET https://www.wedosport.net/iscrizioni.cfm`
+  - Verifica iscritti per singola gara: `GET https://www.wedosport.net/lista-iscritti/{slug}` con parsing dinamico delle colonne della tabella pubblica.
 - **Archivio Federale FIDAL & TDS**:
   - Ricerca anagrafica: `POST https://www.fidal.it/result.php` con parametro `cerca`
   - Estrazione profilo e graduatorie: analisi diretta asincrona della scheda atleta ufficiale `https://www.fidal.it/atleta/{slug}/{hash}` senza dipendenze esterne pesanti.
-- **Gestione Concorrenza & Rate Limit**: Semafori asincroni con `httpx` limitati per garantire velocità senza saturare le risorse di rete.
+- **Gestione Concorrenza & Rate Limit Polite**: Semafori asincroni controllati con `httpx` (`asyncio.Semaphore(8)` per ENDU/ICRON, `(6)` per Wedosport) per garantire massima reattività nel pieno rispetto dei server remoti.
 
 ---
 
-## ⚖️ Disclaimer & Note Legali
+## ⚖️ Conformità Legale, Tutela Privacy (GDPR) e Condizioni d'Uso
 
-- **Progetto Non Ufficiale**: Questo software è uno strumento indipendente open-source, sviluppato a scopo educativo, di studio e per **uso strettamente personale e domestico** (in conformità con l'Art. 2, par. 2, lett. c del Regolamento UE 2016/679 - GDPR).
-- **Nessuna Affiliazione**: Il progetto non è in alcun modo affiliato, associato, sponsorizzato né approvato da **ENDU**, **Evodata S.r.l.**, da **ICRON**, da **FIDAL** (Federazione Italiana di Atletica Leggera) o dalle società di cronometraggio citate (TDS, SDAM, WinningTime). Tutti i marchi, loghi e denominazioni appartengono ai rispettivi proprietari.
-- **Nessuna Conservazione di Dati Personali**: L'applicazione opera esclusivamente "on-demand" in memoria volatile (RAM) e non memorizza né redistribuisce alcun dato anagrafico su database permanenti.
-- **Responsabilità**: L'utente è l'unico responsabile dell'utilizzo dello strumento nel rispetto dei termini di servizio delle piattaforme terze interrogate.
+Questo software è stato sviluppato con la massima cura dal punto di vista tecnico e giuridico, prestando particolare attenzione alla disciplina sulla protezione dei dati personali e alla tutela dei servizi terzi:
+
+1. **Finalità Esclusivamente Personale e Domestica (Esenzione GDPR Art. 2, par. 2, lett. c Reg. UE 2016/679)**:
+   - Ai sensi dell'**Articolo 2, paragrafo 2, lettera c del Regolamento Generale sulla Protezione dei Dati (GDPR - Regolamento UE 2016/679)**, il presente software è progettato e concesso per l'utilizzo da parte di persone fisiche per l'esercizio di **attività a carattere esclusivamente personale o domestico** (es. verifica delle proprie iscrizioni agonistiche, supporto personale ai compagni della propria associazione sportiva, consultazione del proprio palmarès sportivo).
+   - È espressamente vietato l'impiego del software per attività commerciali sistematiche, profilazione di massa a fini di marketing o rivendita a terzi di elenchi e anagrafiche.
+
+2. **Privacy by Design e Totale Assenza di Database Persistenti**:
+   - L'applicazione opera secondo i principi di minimizzazione e *privacy by design*: **non include alcun database** (né SQLite, né MySQL, né PostgreSQL, né file di memorizzazione su disco).
+   - Nessun dato personale o risultato sportivo viene salvato o archiviato in modo permanente sul dispositivo locale né trasmesso a server esterni di terze parti.
+   - Le informazioni consultate transitano unicamente nella memoria volatile (RAM) per il tempo strettamente necessario a comporre la visualizzazione a video ed evaporano alla chiusura del processo o allo scadere della cache tecnica (TTL 1 ora).
+
+3. **Accesso Trasparente a sole Risorse di Pubblico Dominio (No Bypassing di Protezioni)**:
+   - Tutte le richieste effettuate alle piattaforme ([ENDU](https://www.endu.net), [ICRON](https://www.icron.it), [Wedosport](https://www.wedosport.net), [FIDAL](https://www.fidal.it)) interrogano pagine web, form di ricerca e sezioni rese **pubblicamente consultabili su Internet** dagli organizzatori delle manifestazioni e dai gestori dei siti web, destinate alla libera consultazione degli elenchi iscritti e delle classifiche ufficiali da parte di atleti, cronisti e appassionati.
+   - Il software **NON esegue alcun bypass di credenziali di login**, non forza aree riservate protette da password, non elude meccanismi di verifica CAPTCHA, non viola token crittografici né accede a dati sensibili o coperti da segreto.
+
+4. **Fair Use, Rispetto dell'Infrastruttura di Rete e Rate Limiting Polite**:
+   - L'applicazione implementa semafori asincroni controllati a bassa concorrenza (massimo 6-8 richieste simultanee) e sistemi di caching in memoria RAM per i calendari gare. In questo modo si evitano interrogazioni ridondanti e si garantisce un utilizzo responsabile che non reca alcun pregiudizio, rallentamento o rischio di sovraccarico (Denial of Service) all'infrastruttura dei servizi ospitanti.
+
+5. **Tutela dei Marchi e Clausola di Non-Affiliazione**:
+   - I marchi, denominazioni commerciali, loghi e grafiche di **ENDU** (Engagigo S.r.l. / Evodata S.r.l.), **ICRON** (Next Race S.r.l. / Icron), **Wedosport** (Wedosport S.r.l.), **FIDAL** (Federazione Italiana di Atletica Leggera) e dei servizi di cronometraggio menzionati (**TDS**, **SDAM**, **WinningTime**) appartengono ai rispettivi legittimi titolari.
+   - Il presente software è un progetto open-source del tutto indipendente e non intrattiene alcun rapporto di affiliazione, partnership, sponsorizzazione o approvazione formale con le aziende e gli enti sopracitati. I nomi sono utilizzati esclusivamente con finalità descrittiva e referenziale per indicare la fonte pubblica dei dati sportivi consultati.
+
+6. **Licenza Open-Source e Limitazione di Responsabilità**:
+   - Il software viene fornito "così com'è" (*as is*), senza garanzie esplicite o implicite, sotto licenza open-source [MIT](LICENSE). L'utente finale è l'unico responsabile dell'utilizzo del software in conformità alle leggi vigenti e ai termini d'uso dei portali liberamente consultati.
 
 ---
 

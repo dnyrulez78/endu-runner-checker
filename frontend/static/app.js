@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const tabFuture = document.getElementById("tabFuture");
     const tabResults = document.getElementById("tabResults");
     const tabFidal = document.getElementById("tabFidal");
+    const tabTrail = document.getElementById("tabTrail");
     const modeSubText = document.getElementById("modeSubText");
     const bannerTitle = document.getElementById("bannerTitle");
     const bannerDesc = document.getElementById("bannerDesc");
@@ -98,6 +99,13 @@ document.addEventListener("DOMContentLoaded", () => {
         FIDAL_PERIODS.push({ label: `Solo Anno ${yr}`, value: `year_${yr}` });
     }
 
+    const WEDOSPORT_PERIODS = [
+        { label: "Tutta la carriera Trail (2004 - Oggi)", value: "all", selected: true }
+    ];
+    for (let yr = 2026; yr >= 2004; yr--) {
+        WEDOSPORT_PERIODS.push({ label: `Solo Anno ${yr}`, value: `year_${yr}` });
+    }
+
     // Inizializza interfaccia
     setupMode("future");
     checkCalendarStatus();
@@ -136,6 +144,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    if (tabTrail) {
+        tabTrail.addEventListener("click", () => {
+            if (currentMode === "trail" || isScanning) return;
+            setupMode("trail");
+        });
+    }
+
     function setupMode(mode) {
         currentMode = mode;
         clearResults();
@@ -148,20 +163,21 @@ document.addEventListener("DOMContentLoaded", () => {
         tabFuture.className = mode === "future" ? activeTabClass : inactiveTabClass;
         tabResults.className = mode === "results" ? activeTabClass : inactiveTabClass;
         if (tabFidal) tabFidal.className = mode === "fidal" ? activeTabClass : inactiveTabClass;
+        if (tabTrail) tabTrail.className = mode === "trail" ? activeTabClass : inactiveTabClass;
 
         if (platformFilterContainer) {
             platformFilterContainer.style.display = mode === "future" ? "block" : "none";
         }
 
         if (mode === "future") {
-            if (modeSubText) modeSubText.textContent = "Modalità attiva: verifica se l'atleta è già iscritto alle prossime gare su ENDU e ICRON";
+            if (modeSubText) modeSubText.textContent = "Modalità attiva: verifica se l'atleta o la società è iscritta alle prossime gare su ENDU, ICRON e Wedosport";
             
             // Aggiorna banner
             bannerTitle.textContent = "Verifica Iscrizioni Gare Future";
-            bannerDesc.innerHTML = 'Inserisci il Nome e Cognome del podista oppure il Codice Società per scansionare le manifestazioni running dei prossimi mesi su <span class="text-emerald-300 font-medium">ENDU e ICRON</span>.';
-            bannerBadgeText.textContent = "Scansione Diretta ENDU + ICRON";
+            bannerDesc.innerHTML = 'Inserisci il Nome e Cognome del podista oppure il Codice Società per scansionare le manifestazioni dei prossimi mesi su <span class="text-emerald-300 font-medium">ENDU, ICRON e Wedosport</span>.';
+            bannerBadgeText.textContent = "Scansione Diretta ENDU + ICRON + Wedosport";
             timePeriodLabel.textContent = "Orizzonte Temporale";
-            filterNoticeText.innerHTML = "Filtro automatico: solo gare di <b>Corsa su Strada</b> (esclusi trail e triathlon).";
+            filterNoticeText.innerHTML = "Filtro circuito: Corsa su Strada (ENDU/ICRON) e Trail Running (Wedosport).";
             
             submitLabel.textContent = "Verifica Iscrizioni";
             submitIcon.setAttribute("data-lucide", "search");
@@ -195,6 +211,20 @@ document.addEventListener("DOMContentLoaded", () => {
             submitIcon.setAttribute("data-lucide", "award");
 
             populateTimePeriods(FIDAL_PERIODS);
+        } else if (mode === "trail") {
+            if (modeSubText) modeSubText.textContent = "Modalità attiva: carriera e palmarès Trail Running, Skyrunning e Ultra su Wedosport (dal 2004 ad oggi)";
+
+            // Aggiorna banner
+            bannerTitle.textContent = "Carriera & Risultati Trail Running (Wedosport)";
+            bannerDesc.innerHTML = 'Consulta tutte le gare Trail, Skyrunning, Vertical e Ultra disputate dall\'atleta su <span class="text-amber-300 font-medium">Wedosport.net</span>: distanze, chilometri, tempi, piazzamenti e link alle classifiche ufficiali dal 2004.';
+            bannerBadgeText.textContent = "Archivio Trail Wedosport (2004-Oggi)";
+            timePeriodLabel.textContent = "Filtro Anno Trail";
+            filterNoticeText.innerHTML = "Specialità <b>Trail Running, Ultra Trail, SkyRunning e Vertical</b> (piattaforma Wedosport.net).";
+
+            submitLabel.textContent = "Cerca Trail Wedosport";
+            submitIcon.setAttribute("data-lucide", "mountain");
+
+            populateTimePeriods(WEDOSPORT_PERIODS);
         }
         lucide.createIcons();
     }
@@ -222,7 +252,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 const minutesLeft = Math.round(data.ttl_seconds_remaining / 60);
                 cacheIndicator.className = "w-2 h-2 rounded-full bg-emerald-500";
                 if (data.total_endu_events !== undefined && data.total_icron_events !== undefined) {
-                    cacheText.textContent = `${data.total_events} gare in cache (${data.total_endu_events} ENDU + ${data.total_icron_events} ICRON)`;
+                    const wedoCount = data.total_wedosport_events !== undefined ? ` + ${data.total_wedosport_events} Wedosport` : "";
+                    cacheText.textContent = `${data.total_events} gare in cache (${data.total_endu_events} ENDU + ${data.total_icron_events} ICRON${wedoCount})`;
                 } else {
                     cacheText.textContent = `${data.total_events} gare running in cache (${minutesLeft}m)`;
                 }
@@ -240,7 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isScanning) return;
         refreshIcon.classList.add("animate-spin");
         btnRefreshCalendar.disabled = true;
-        cacheText.textContent = "Aggiornamento calendario da ENDU e ICRON...";
+        cacheText.textContent = "Aggiornamento calendario da ENDU, ICRON e Wedosport...";
         
         try {
             const val = timePeriodSelect.value;
@@ -317,16 +348,26 @@ document.addEventListener("DOMContentLoaded", () => {
         tabFuture.disabled = scanning;
         tabResults.disabled = scanning;
         if (tabFidal) tabFidal.disabled = scanning;
+        if (tabTrail) tabTrail.disabled = scanning;
 
         if (scanning) {
             submitLabel.textContent = "Scansione in corso...";
             submitIcon.setAttribute("data-lucide", "loader-2");
             submitIcon.classList.add("animate-spin");
         } else {
-            submitLabel.textContent = currentMode === "future" 
-                ? "Verifica Iscrizioni" 
-                : (currentMode === "fidal" ? "Cerca Carriera FIDAL" : "Cerca Risultati ENDU");
-            submitIcon.setAttribute("data-lucide", currentMode === "future" ? "search" : (currentMode === "fidal" ? "award" : "trophy"));
+            if (currentMode === "future") {
+                submitLabel.textContent = "Verifica Iscrizioni";
+                submitIcon.setAttribute("data-lucide", "search");
+            } else if (currentMode === "trail") {
+                submitLabel.textContent = "Cerca Trail Wedosport";
+                submitIcon.setAttribute("data-lucide", "mountain");
+            } else if (currentMode === "fidal") {
+                submitLabel.textContent = "Cerca Carriera FIDAL";
+                submitIcon.setAttribute("data-lucide", "award");
+            } else {
+                submitLabel.textContent = "Cerca Risultati ENDU";
+                submitIcon.setAttribute("data-lucide", "trophy");
+            }
             submitIcon.classList.remove("animate-spin");
         }
         lucide.createIcons();
@@ -399,6 +440,52 @@ document.addEventListener("DOMContentLoaded", () => {
                     setScanningState(false);
                     progressPanel.classList.add("hidden");
                     showError(err.message || "Errore di connessione con l'archivio federale FIDAL.");
+                });
+            return;
+        }
+
+        // --- MODALITÀ TRAIL RUNNING (WEDOSPORT) ---
+        if (currentMode === "trail") {
+            const wedoParams = new URLSearchParams();
+            wedoParams.append("last_name", last);
+            if (first) wedoParams.append("first_name", first);
+            if (periodValue && periodValue.startsWith("year_")) {
+                wedoParams.append("year", periodValue.replace("year_", ""));
+            }
+            if (eventName) wedoParams.append("race_name", eventName);
+
+            progressPanel.classList.remove("hidden");
+            progressTitle.textContent = "Ricerca scheda atleta su Wedosport.net...";
+            progressCheckedText.textContent = "Consultazione archivio storico Trail dal 2004...";
+            progressMatchesText.textContent = "";
+            progressBar.style.width = "75%";
+            progressPercentage.textContent = "75%";
+
+            fetch(`/api/wedosport/search?${wedoParams.toString()}`)
+                .then(async (res) => {
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.detail || "Errore durante la ricerca Wedosport");
+                    return data;
+                })
+                .then((data) => {
+                    setScanningState(false);
+                    progressBar.style.width = "100%";
+                    progressPercentage.textContent = "100%";
+                    setTimeout(() => progressPanel.classList.add("hidden"), 500);
+
+                    if (!data.success || !data.athlete || !data.athlete.results || data.athlete.results.length === 0) {
+                        emptyStateTitle.textContent = "Nessuna Gara Trail Trovata su Wedosport";
+                        emptyStateDesc.textContent = data.message || `Nessuna gara trail trovata per '${last}' nell'archivio Wedosport dal 2004 ad oggi.`;
+                        emptyState.classList.remove("hidden");
+                        resultsHeader.classList.add("hidden");
+                    } else {
+                        renderWedosportResults(data.athlete, data.elapsed_seconds, data.other_candidates);
+                    }
+                })
+                .catch((err) => {
+                    setScanningState(false);
+                    progressPanel.classList.add("hidden");
+                    showError(err.message || "Errore di connessione con l'archivio Wedosport.");
                 });
             return;
         }
@@ -619,14 +706,23 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `).join("");
 
-        const isIcron = (match.source || "").toUpperCase() === "ICRON";
-        const sourceBadge = isIcron 
-            ? `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300 tracking-wider">ICRON</span>`
-            : `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-300 tracking-wider">ENDU</span>`;
-        const verifyLabel = isIcron ? "Scheda ICRON" : "Verifica ENDU";
-        const verifyBtnClass = isIcron 
-            ? "px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold border border-amber-300 transition-colors flex items-center space-x-1"
-            : "px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold border border-emerald-200 transition-colors flex items-center space-x-1";
+        const srcUpper = (match.source || "").toUpperCase();
+        const isIcron = srcUpper === "ICRON";
+        const isWedo = srcUpper === "WEDOSPORT";
+
+        let sourceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-300 tracking-wider">ENDU</span>`;
+        let verifyLabel = "Verifica ENDU";
+        let verifyBtnClass = "px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold border border-emerald-200 transition-colors flex items-center space-x-1";
+
+        if (isIcron) {
+            sourceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300 tracking-wider">ICRON</span>`;
+            verifyLabel = "Scheda ICRON";
+            verifyBtnClass = "px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold border border-amber-300 transition-colors flex items-center space-x-1";
+        } else if (isWedo) {
+            sourceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-stone-200 text-stone-900 border border-stone-400 tracking-wider flex items-center space-x-1"><i data-lucide="mountain" class="w-2.5 h-2.5 text-amber-800"></i><span>WEDOSPORT</span></span>`;
+            verifyLabel = "Lista Wedosport";
+            verifyBtnClass = "px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold border border-stone-300 transition-colors flex items-center space-x-1";
+        }
 
         card.innerHTML = `
             <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -858,6 +954,105 @@ document.addEventListener("DOMContentLoaded", () => {
         lucide.createIcons();
     }
 
+    // Render Risultati Ufficiali Carriera Trail Wedosport
+    function renderWedosportResults(athlete, elapsed, otherCandidates) {
+        resultsContainer.innerHTML = "";
+        foundMatches = athlete.results;
+
+        const count = athlete.results.length;
+        resultsCountTitle.textContent = `${count} ${count === 1 ? 'Gara Trail Trovata' : 'Gare Trail Trovate'}`;
+        resultsSubTitle.textContent = `Palmarès Wedosport estratto in ${elapsed}s per ${athlete.name}`;
+        resultsHeader.classList.remove("hidden");
+        emptyState.classList.add("hidden");
+
+        // 1. Scheda Profilo Atleta Trail
+        const profileCard = document.createElement("div");
+        profileCard.className = "bg-gradient-to-r from-stone-900 via-amber-950 to-slate-900 rounded-2xl p-6 text-white shadow-md space-y-4";
+
+        let otherNotice = "";
+        if (otherCandidates && otherCandidates.length > 0) {
+            otherNotice = `
+                <div class="pt-3 border-t border-stone-700/60 text-xs text-stone-300 flex flex-wrap items-center gap-1.5">
+                    <span class="font-bold text-amber-300">Altri atleti trovati:</span>
+                    ${otherCandidates.map(c => `<span class="px-2 py-0.5 rounded bg-white/10 text-stone-200">${escapeHtml(c.name)} (${c.total_races} gare${c.birth_year ? ', anno ' + c.birth_year : ''})</span>`).join(" ")}
+                </div>
+            `;
+        }
+
+        profileCard.innerHTML = `
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold text-xs uppercase border border-amber-500/30 flex items-center space-x-1">
+                            <i data-lucide="mountain" class="w-3.5 h-3.5 text-amber-300"></i>
+                            <span>Carriera Trail & SkyRunning (Wedosport)</span>
+                        </span>
+                        ${athlete.birth_year ? `<span class="text-xs text-stone-300 font-medium">&bull; Anno di nascita: ${escapeHtml(String(athlete.birth_year))}</span>` : ''}
+                    </div>
+                    <h3 class="text-2xl font-black tracking-tight text-white">${escapeHtml(athlete.name)}</h3>
+                    ${athlete.society ? `<p class="text-sm text-stone-300 font-medium">Società: <span class="text-amber-300 font-bold">${escapeHtml(athlete.society)}</span></p>` : ''}
+                </div>
+                <div class="shrink-0 flex items-center space-x-2">
+                    <div class="px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold text-center">
+                        <span class="block text-[10px] text-amber-300 uppercase">Totale Gare</span>
+                        <span class="text-xl font-mono text-white">${athlete.total_races}</span>
+                    </div>
+                </div>
+            </div>
+            ${otherNotice}
+        `;
+        resultsContainer.appendChild(profileCard);
+
+        // 2. Elenco Gare Trail Disputate
+        athlete.results.forEach(r => {
+            const row = document.createElement("div");
+            row.className = "bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-slate-300 transition-all";
+
+            const rankBadge = r.rank_cleaned ? `<strong class="text-slate-900">${escapeHtml(r.rank_cleaned)}</strong>` : '<span class="text-slate-400">Classificato</span>';
+
+            row.innerHTML = `
+                <div class="flex items-start sm:items-center space-x-4">
+                    <div class="w-16 h-16 rounded-xl bg-amber-50 border border-amber-200 flex flex-col items-center justify-center shrink-0 text-center px-1">
+                        <span class="text-[10px] font-bold uppercase text-amber-800 leading-tight">${escapeHtml(r.date.split('/')[0] + '/' + r.date.split('/')[1])}</span>
+                        <span class="text-base font-black text-amber-950 font-mono leading-none">${escapeHtml(String(r.year || ''))}</span>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+                            <span class="font-bold text-slate-900 text-base">${escapeHtml(r.race_name)}</span>
+                            <span class="px-2 py-0.5 rounded-md bg-stone-100 text-stone-800 text-xs font-bold border border-stone-200 flex items-center space-x-1">
+                                <i data-lucide="mountain" class="w-3 h-3 text-amber-700"></i>
+                                <span>${escapeHtml(r.sport)}</span>
+                            </span>
+                            ${r.distance_km ? `<span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 text-xs font-bold border border-amber-200">${escapeHtml(r.distance_km)}</span>` : ''}
+                        </div>
+                        ${r.distance_name ? `<p class="text-xs text-slate-600 font-medium">${escapeHtml(r.distance_name)}</p>` : ''}
+                        <div class="text-xs text-slate-500 flex flex-wrap items-center gap-x-3">
+                            <span>Piazzamento: ${rankBadge}</span>
+                            ${r.team ? `<span>&bull; Società: <strong class="text-slate-700">${escapeHtml(r.team)}</strong></span>` : ''}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3 shrink-0 sm:text-right">
+                    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 min-w-[100px] text-center">
+                        <span class="block text-[10px] uppercase font-bold text-slate-400">Tempo Ufficiale</span>
+                        <span class="text-lg font-mono font-black text-amber-700">${escapeHtml(r.time)}</span>
+                    </div>
+                    ${r.classifica_url ? `
+                        <a href="${escapeHtml(r.classifica_url)}" target="_blank" rel="noopener noreferrer"
+                            class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors flex items-center space-x-1.5 shadow-xs">
+                            <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-700"></i>
+                            <span class="hidden sm:inline">Classifica</span>
+                        </a>
+                    ` : ''}
+                </div>
+            `;
+            resultsContainer.appendChild(row);
+        });
+
+        lucide.createIcons();
+    }
+
     // Copia riepilogo testuale
     btnExport.addEventListener("click", () => {
         if (foundMatches.length === 0) return;
@@ -870,8 +1065,17 @@ document.addEventListener("DOMContentLoaded", () => {
             foundMatches.forEach((r, idx) => {
                 summary += `${idx + 1}. [${r.full_date || r.date + '/' + r.year}] ${r.discipline} a ${r.city} - Tempo: ${r.time} - Piazzamento: ${r.rank_cleaned || r.rank} (${r.category})\n`;
             });
+        } else if (currentMode === "trail") {
+            summary = `=== CARRIERA TRAIL RUNNING (Wedosport.net) ===\n`;
+            summary += `Atleta: ${lastNameInput.value} ${firstNameInput.value || ''}\n`;
+            summary += `Totale gare trovate: ${foundMatches.length}\n\n`;
+            foundMatches.forEach((r, idx) => {
+                summary += `${idx + 1}. [${r.date}] ${r.race_name} (${r.distance_name || r.distance_km}) - Tempo: ${r.time} - Piazzamento: ${r.rank_cleaned || r.rank || '-'}\n`;
+                if (r.team) summary += `   Società: ${r.team}\n`;
+                if (r.classifica_url) summary += `   Classifica: ${r.classifica_url}\n`;
+            });
         } else if (currentMode === "future") {
-            summary = `=== ISCRIZIONI FUTURE (ENDU & ICRON) ===\n`;
+            summary = `=== ISCRIZIONI FUTURE (ENDU, ICRON & WEDOSPORT) ===\n`;
             summary += `Criteri: Nome: ${firstNameInput.value || '-'} | Cognome: ${lastNameInput.value || '-'} | Società: ${teamCodeInput.value || '-'}\n`;
             summary += `Totale manifestazioni trovate: ${foundMatches.length}\n\n`;
 

@@ -1,9 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
-title ENDU Runner Scanner
+title ENDU, ICRON & Wedosport Runner Scanner
 
 echo =======================================================
-echo         ENDU ROAD RUNNING CHECKER AND RESULTS
+echo         ENDU, ICRON & WEDOSPORT RUNNER SCANNER (STRADA & TRAIL)
 echo =======================================================
 echo.
 echo Avvio in corso dell'applicazione...

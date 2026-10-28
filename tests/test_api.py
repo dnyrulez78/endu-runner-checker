@@ -147,6 +147,46 @@ def test_routes():
     assert any("MARCHESAN" in ent["full_name"].upper() for ent in irun["entrants"])
     print(f"   ICRON team search OK! Found {d_team['matches_count']} races for vi654 including {irun['name']}.")
 
+    print("15. Testing Wedosport Trail career search for Danny Marchesan ...")
+    r_wedo = client.get("/api/wedosport/search?last_name=marchesan&first_name=danny")
+    assert r_wedo.status_code == 200
+    d_wedo = r_wedo.json()
+    assert d_wedo["success"] is True
+    assert d_wedo["athlete"] is not None
+    assert "MARCHESAN" in d_wedo["athlete"]["name"].upper()
+    assert len(d_wedo["athlete"]["results"]) >= 3
+    ultra = next((r for r in d_wedo["athlete"]["results"] if "ultrabericus" in r["race_name"].lower()), None)
+    assert ultra is not None
+    assert "65" in ultra["distance_km"] or "65" in ultra["distance_name"]
+    print(f"   Wedosport career OK! Verified {d_wedo['athlete']['name']}: {ultra['race_name']} {ultra['distance_km']} - Tempo: {ultra['time']} (Pos: {ultra['rank_cleaned']})")
+
+    print("16. Testing Wedosport future entrant search for last_name=bianquin ...")
+    r_wf = client.get("/api/search?last_name=bianquin&platform=wedosport&months=5")
+    assert r_wf.status_code == 200
+    d_wf = r_wf.json()
+    assert d_wf["success"] is True
+    assert d_wf["matches_count"] >= 1
+    assert d_wf["results"][0]["source"] == "WEDOSPORT"
+    print(f"   Wedosport future search OK! Found {d_wf['matches_count']} matches (Sample: {d_wf['results'][0]['name']})")
+
+    print("17. Testing combined SSE stream (ENDU + ICRON + Wedosport) ...")
+    with client.stream("GET", "/api/search/stream?first_name=Stefano&last_name=Baronio&platform=all&months=5") as s_res3:
+        assert s_res3.status_code == 200
+        packets = []
+        for line in s_res3.iter_lines():
+            if line and line.startswith("data: "):
+                import json
+                p = json.loads(line[6:])
+                packets.append(p)
+        assert len(packets) >= 2
+        init_pkt = packets[0]
+        assert init_pkt["type"] == "init"
+        assert init_pkt["total_wedosport"] >= 1
+        match_pkts = [p for p in packets if p.get("type") == "match"]
+        assert len(match_pkts) >= 1
+        assert any(p["match"]["source"] == "WEDOSPORT" for p in match_pkts)
+        print(f"   Combined 3-platform SSE stream OK! Verified Wedosport match in live stream.")
+
     print("\n>>> ALL TESTS PASSED SUCCESSFULLY! <<<")
 
 if __name__ == "__main__":

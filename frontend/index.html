@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ENDU Runner Scanner & Risultati</title>
+    <title>ENDU, ICRON &amp; Wedosport Runner Scanner (Strada &amp; Trail)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons CDN -->
@@ -22,7 +22,7 @@
                 </div>
                 <div>
                     <h1 class="text-lg font-bold tracking-tight text-slate-900 leading-none">ENDU Runner Scanner</h1>
-                    <p class="text-xs text-slate-500 mt-0.5">Iscrizioni future e Storico risultati Corsa su Strada</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Iscrizioni future e Storico risultati Corsa su Strada &amp; Trail</p>
                 </div>
             </div>
 
@@ -32,7 +32,7 @@
                     <span class="w-2 h-2 rounded-full bg-slate-400" id="cacheIndicator"></span>
                     <span id="cacheText">Controllo calendario...</span>
                 </div>
-                <button id="btnRefreshCalendar" title="Forza aggiornamento del calendario gare da ENDU e ICRON" class="p-2 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-slate-100 transition-colors flex items-center space-x-1.5">
+                <button id="btnRefreshCalendar" title="Forza aggiornamento del calendario gare da ENDU, ICRON e Wedosport" class="p-2 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-slate-100 transition-colors flex items-center space-x-1.5">
                     <i data-lucide="refresh-cw" class="w-4 h-4" id="refreshIcon"></i>
                     <span class="hidden md:inline font-medium">Aggiorna Gare</span>
                 </button>
@@ -51,12 +51,12 @@
             <div class="relative z-10 max-w-2xl space-y-2">
                 <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 text-xs font-semibold tracking-wide uppercase border border-emerald-500/30">
                     <i data-lucide="zap" class="w-3.5 h-3.5"></i>
-                    <span id="bannerBadgeText">Scansione Diretta API ENDU & ICRON</span>
+                    <span id="bannerBadgeText">Scansione ENDU, ICRON &amp; Wedosport</span>
                 </div>
                 <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight" id="bannerTitle">Verifica Iscrizioni Gare Future</h2>
                 <p class="text-slate-300 text-sm sm:text-base leading-relaxed" id="bannerDesc">
                     Inserisci il Nome e Cognome del podista oppure il Codice Società per scansionare istantaneamente
-                    le manifestazioni running dei prossimi mesi su <span class="text-emerald-300 font-medium">ENDU e ICRON</span>.
+                    le manifestazioni running dei prossimi mesi su <span class="text-emerald-300 font-medium">ENDU, ICRON e Wedosport</span>.
                 </p>
             </div>
         </div>
@@ -70,18 +70,22 @@
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Cosa vuoi cercare?</span>
                     <span class="text-xs text-slate-600 font-medium" id="modeSubText">Scegli se verificare le iscrizioni future o consultare i risultati passati</span>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 bg-slate-100 rounded-2xl w-full sm:w-auto shadow-inner">
-                    <button type="button" id="tabFuture" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm bg-white text-emerald-900 flex items-center justify-center space-x-2">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 bg-slate-100 rounded-2xl w-full sm:w-auto shadow-inner">
+                    <button type="button" id="tabFuture" class="px-3 sm:px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm bg-white text-emerald-900 flex items-center justify-center space-x-1.5 sm:space-x-2">
                         <i data-lucide="calendar-check-2" class="w-4 h-4 text-emerald-600"></i>
                         <span>Iscrizioni Future</span>
                     </button>
-                    <button type="button" id="tabResults" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center justify-center space-x-2">
+                    <button type="button" id="tabResults" class="px-3 sm:px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center justify-center space-x-1.5 sm:space-x-2">
                         <i data-lucide="trophy" class="w-4 h-4 text-slate-500"></i>
                         <span>Risultati ENDU</span>
                     </button>
-                    <button type="button" id="tabFidal" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center justify-center space-x-2">
+                    <button type="button" id="tabFidal" class="px-3 sm:px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center justify-center space-x-1.5 sm:space-x-2">
                         <i data-lucide="award" class="w-4 h-4 text-slate-500"></i>
                         <span>Archivio FIDAL / TDS</span>
+                    </button>
+                    <button type="button" id="tabTrail" class="px-3 sm:px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center justify-center space-x-1.5 sm:space-x-2">
+                        <i data-lucide="mountain" class="w-4 h-4 text-amber-700"></i>
+                        <span>Trail (Wedosport)</span>
                     </button>
                 </div>
             </div>
@@ -210,9 +214,10 @@
                                 </div>
                                 <select id="platformSelect" name="platform"
                                     class="w-full pl-10 pr-9 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-medium text-slate-900 appearance-none cursor-pointer">
-                                    <option value="all" selected>Tutte (ENDU + ICRON)</option>
-                                    <option value="endu">Solo ENDU</option>
-                                    <option value="icron">Solo ICRON</option>
+                                    <option value="all" selected>Tutte (ENDU + ICRON + Wedosport)</option>
+                                    <option value="endu">Solo ENDU (Strada)</option>
+                                    <option value="icron">Solo ICRON (Strada)</option>
+                                    <option value="wedosport">Solo Wedosport (Trail)</option>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
                                     <i data-lucide="chevron-down" class="w-4 h-4"></i>
@@ -323,7 +328,7 @@
 
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
-        <p>ENDU Runner Scanner &bull; Uso Personale Locale &bull; Nessun dato permanente salvato &bull; Connessione diretta a endu.net e fidal.it</p>
+        <p>ENDU Runner Scanner &bull; Uso Personale Locale &bull; Nessun dato permanente salvato &bull; Ricerca su ENDU, ICRON, Wedosport e FIDAL</p>
     </footer>
 
     <!-- App JavaScript -->
