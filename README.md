@@ -5,6 +5,7 @@ Applicazione web locale moderna, veloce e pulita (backend Python FastAPI + front
 2. **Consultare lo storico dei risultati e tempi di gara su ENDU**, con filtri mirati per data specifica e nome gara/città, con storico a ritroso fino a oltre 15 anni (dal 2010 ad oggi).
 3. **Interrogare l'Archivio Carriera Ufficiale FIDAL & gare storiche TDS**, risolvendo il recupero di tutte le manifestazioni competitive certificate non presenti su ENDU (cronometrate da TDS, TDS-Live, SDAM, WinningTime, Icron), visualizzando la scheda atleta federale, la società di appartenenza e i Primati Personali (PB).
 4. **Consultare la Carriera & Risultati Trail Running su Wedosport**, con accesso al palmarès completo di gare Trail, Ultra Trail, Skyrunning e Vertical dal **2004 ad oggi** (distanze, chilometri, tempi, piazzamenti e link alle classifiche ufficiali).
+5. **Cercare rapidamente l'atleta su Strava (Novità v3.3)**, tramite il pulsante scorciatoia dedicato presente accanto a ogni atleta trovato e nelle schede carriera per consultare il profilo e seguirlo (richiede login attivo su Strava).
 
 <p align="center">
   <img src="assets/screenshot.png" alt="Anteprima Interfaccia ENDU, ICRON & Wedosport Runner Scanner v3.3" width="900" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" />
@@ -14,7 +15,14 @@ Applicazione web locale moderna, veloce e pulita (backend Python FastAPI + front
 
 ## 🌟 Novità Versione 3.3 & Caratteristiche Principali
 
-- **Integrazione Piattaforma Trail Running Wedosport (Novità v3.2)**:
+- **Pulsante Scorciatoia "Cerca su Strava" (Novità v3.3)**:
+  - Consente di aprire con un singolo clic la ricerca atleti ufficiale di Strava in una nuova scheda del browser per seguire o verificare le attività pubbliche dei podisti.
+  - Presente sia accanto al nome di ogni singolo atleta nelle gare future e passate, sia all'interno dei riquadri anagrafici ufficiali (FIDAL e Wedosport).
+  - **Zero scraping & 100% privacy**: l'applicazione non interroga né memorizza dati da Strava; si tratta di una semplice scorciatoia di ricerca per l'utente autenticato su Strava.
+  <p align="center" style="margin-top: 8px; margin-bottom: 12px;">
+    <img src="assets/strava_button.png" alt="Pulsante Cerca su Strava" width="160" style="border-radius: 6px;" />
+  </p>
+- **Integrazione Piattaforma Trail Running Wedosport (Introdotta in v3.2)**:
   - Nuova scheda dedicata **Trail (Wedosport)** con archivio storico completo a partire dal **2004 ad oggi** (oltre 22 anni di manifestazioni montane).
   - Scheda gara con dettagli completi: specialità (*Trail Running, Ultra Trail, Skyrunning, Vertical*), chilometraggio esatto, tempo finale, posizione assoluta e di genere, stato della prova e collegamento diretto alla graduatoria ufficiale Wedosport.
   - Verifica automatica delle **iscrizioni future alle gare Wedosport** (parsing trasparente di `/lista-iscritti/{slug}`) sia nella ricerca combinata che con filtro dedicato.
@@ -39,12 +47,6 @@ Applicazione web locale moderna, veloce e pulita (backend Python FastAPI + front
 - **Barra di Avanzamento Real-Time (SSE)**: La scansione trasmette aggiornamenti in tempo reale via Server-Sent Events; ogni risultato trovato compare all'istante a schermo.
 - **Caching Intelligente in Memoria RAM**: I calendari delle manifestazioni vengono memorizzati temporaneamente in memoria per evitare chiamate ripetute ai server.
 - **Privacy & Assenza di Database Permanente**: Nessun dato personale memorizzato su disco; tutto opera on-demand in memoria volatile.
-- **Pulsante Scorciatoia "Cerca su Strava" (Novità v3.3)**:
-  - Consente di aprire con un singolo clic la ricerca atleti ufficiale di Strava in una nuova scheda del browser per seguire o verificare le attività pubbliche dei podisti.
-  - **Zero scraping & 100% privacy**: l'applicazione non interroga né memorizza dati da Strava; si tratta di una semplice scorciatoia di ricerca per l'utente loggato.
-  <p align="center" style="margin-top: 8px; margin-bottom: 12px;">
-    <img src="assets/strava_button.png" alt="Pulsante Cerca su Strava" width="160" style="border-radius: 6px;" />
-  </p>
 - **Esportazione Risultati**: Pulsante rapido per copiare il riepilogo testuale formattato negli appunti con un clic.
 - **Suite di Test Automatizzata**: 17 test integrati (`tests/test_api.py`) con copertura di tutti i provider e flussi di streaming.
 
@@ -165,12 +167,22 @@ Nell'interfaccia web puoi alternare tra quattro modalità tramite le schede in a
    - Il box **Primati Personali (PB)** certificati su 10km, Maratonina, Maratona.
    - L'elenco cronologico di tutte le gare ufficiali disputate, incluse le gare cronometrate da **TDS** (come le storiche mezze maratone di Vicenza o Cittadella).
 
-### 4. Scheda "Trail (Wedosport)" (Novità v3.2)
+### 4. Scheda "Trail (Wedosport)"
 1. Inserisci il **Cognome** (es. `Rossi`) e facoltativamente il **Nome** (es. `Mario`).
 2. *(Opzionale)* Filtra per anno specifico dal 2004 ad oggi.
 3. Clicca su **Cerca Trail Wedosport**:
    - Visualizzerai l'elenco cronologico di tutte le gare di **Trail Running, Ultra Trail, Skyrunning e Vertical** disputate.
    - Badge con chilometraggio (`Km`), tempo impiegato, posizione assoluta e di genere, stato della gara e link diretto alla classifica ufficiale Wedosport.
+
+### 5. Ricerca Rapida dell'Atleta su Strava (Novità v3.3)
+In qualsiasi modalità di ricerca (Iscrizioni Future, Risultati ENDU, Archivio FIDAL / TDS o Trail Wedosport):
+1. Accanto al nome di ciascun atleta individuato (o all'interno della scheda profilo carriera) è presente il pulsante arancione:
+   <p align="left" style="margin-top: 6px; margin-bottom: 8px;">
+     <img src="assets/strava_button.png" alt="Pulsante Cerca su Strava" width="150" style="border-radius: 6px;" />
+   </p>
+2. Facendo clic sul pulsante, si aprirà una nuova scheda del browser direttamente con la query di ricerca del runner su Strava:
+   `https://www.strava.com/athletes/search?text=Nome+Cognome`
+3. **Nota di funzionamento**: Per visualizzare i risultati e accedere ai profili su Strava è necessario avere una sessione di login attiva sul sito di Strava nel proprio browser (altrimenti la piattaforma protegge la directory e richiede l'accesso).
 
 ---
 
