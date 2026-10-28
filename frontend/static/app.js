@@ -1,5 +1,5 @@
 /**
- * ENDU Runner Scanner & Risultati - Frontend Logic
+ * Runner Scanner - Frontend Logic
  * Gestisce:
  *  1. Verifica iscrizioni a gare future (SSE stream)
  *  2. Consultazione dello storico tempi e piazzamenti in gare passate (SSE stream)

@@ -27,8 +27,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger("endu_tool")
 
 app = FastAPI(
-    title="ENDU, ICRON & Wedosport Road & Trail Running Checker",
-    description="Applicazione locale per verificare le iscrizioni su ENDU, ICRON e Wedosport, consultare lo storico risultati ENDU, l'archivio federale FIDAL/TDS e la carriera Trail Running Wedosport.",
+    title="Runner Scanner",
+    description="Applicazione locale per verificare le iscrizioni e consultare lo storico risultati su ENDU, ICRON, Wedosport e FIDAL.",
     version="3.3.0"
 )
 
@@ -613,7 +613,7 @@ if __name__ == "__main__":
     local_url = f"http://{host}:{port}"
     
     print("\n" + "=" * 60)
-    print("  🏃 ENDU, ICRON & WEDOSPORT RUNNER SCANNER (STRADA & TRAIL) 🏃")
+    print("          🏃 RUNNER SCANNER (STRADA & TRAIL) 🏃")
     print("=" * 60)
     print("Server locale avviato con successo!")
     print(f"Apri il tuo browser all'indirizzo: {local_url}")

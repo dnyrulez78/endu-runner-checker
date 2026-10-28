@@ -13,7 +13,7 @@ def test_routes():
     print("1. Testing GET / ...")
     r = client.get("/")
     assert r.status_code == 200
-    assert "ENDU Runner Scanner" in r.text
+    assert "Runner Scanner" in r.text
     print("   GET / OK!")
 
     print("2. Testing GET /api/calendar/status ...")

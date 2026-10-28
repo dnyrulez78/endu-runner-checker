@@ -1,4 +1,4 @@
-# 🏃 ENDU, ICRON & Wedosport Runner Scanner, Results & Trail Archive (v3.3)
+# 🏃 Runner Scanner (v3.3)
 
 Applicazione web locale moderna, veloce e pulita (backend Python FastAPI + frontend HTML5/Tailwind CSS) progettata per podisti, atleti e società sportive per:
 1. **Verificare a quali manifestazioni future di Corsa su Strada & Trail Running** (road running, trail, skyrunning) presenti su [ENDU](https://www.endu.net), [ICRON](https://www.icron.it) e [Wedosport](https://www.wedosport.net) un atleta o una squadra risulta iscritto, con supporto a filtro unificato o per singola piattaforma.
@@ -8,7 +8,7 @@ Applicazione web locale moderna, veloce e pulita (backend Python FastAPI + front
 5. **Cercare rapidamente l'atleta su Strava (Novità v3.3)**, tramite il pulsante scorciatoia dedicato presente accanto a ogni atleta trovato e nelle schede carriera per consultare il profilo e seguirlo (richiede login attivo su Strava).
 
 <p align="center">
-  <img src="assets/screenshot.png" alt="Anteprima Interfaccia ENDU, ICRON & Wedosport Runner Scanner v3.3" width="900" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" />
+  <img src="assets/screenshot.png" alt="Anteprima Interfaccia Runner Scanner v3.3" width="900" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" />
 </p>
 
 ---
