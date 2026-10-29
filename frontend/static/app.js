@@ -727,7 +727,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="flex items-center space-x-2 shrink-0">
                     <a href="${getStravaSearchUrl(ent.full_name)}" target="_blank" rel="noopener noreferrer" title="Cerca ${escapeHtml(ent.full_name)} su Strava"
                         class="px-2.5 py-1 rounded-lg bg-orange-50 hover:bg-orange-100 text-[#FC5200] border border-orange-200 text-xs font-semibold transition-colors flex items-center space-x-1 shadow-2xs">
-                        <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7.01 13.828h4.172"/></svg>
+                        <svg class="w-3 h-3 stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7.5"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         <span>Cerca su Strava</span>
                     </a>
                     ${ent.bib ? `
@@ -819,7 +819,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="flex items-center space-x-2 shrink-0">
                         <a href="${getStravaSearchUrl(res.full_name)}" target="_blank" rel="noopener noreferrer" title="Cerca ${escapeHtml(res.full_name)} su Strava"
                             class="px-2.5 py-1 rounded-lg bg-orange-50 hover:bg-orange-100 text-[#FC5200] border border-orange-200 text-xs font-semibold transition-colors flex items-center space-x-1 shadow-2xs">
-                            <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7.01 13.828h4.172"/></svg>
+                            <svg class="w-3 h-3 stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7.5"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                             <span>Cerca su Strava</span>
                         </a>
                         ${res.bib ? `
@@ -954,7 +954,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="shrink-0 flex items-center space-x-2">
                     <a href="${getStravaSearchUrl(athlete.name)}" target="_blank" rel="noopener noreferrer" title="Cerca ${escapeHtml(athlete.name)} su Strava"
                         class="px-3.5 py-2 rounded-xl bg-[#FC5200]/20 hover:bg-[#FC5200]/30 border border-[#FC5200]/40 text-orange-200 text-xs font-semibold flex items-center space-x-2 transition-all">
-                        <svg class="w-3.5 h-3.5 fill-[#FC5200]" viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7.01 13.828h4.172"/></svg>
+                        <svg class="w-3.5 h-3.5 stroke-[#FC5200]" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7.5"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         <span>Cerca su Strava</span>
                     </a>
                     <a href="${escapeHtml(athlete.fidal_url)}" target="_blank" rel="noopener noreferrer"
@@ -1043,7 +1043,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="shrink-0 flex items-center space-x-2">
                     <a href="${getStravaSearchUrl(athlete.name)}" target="_blank" rel="noopener noreferrer" title="Cerca ${escapeHtml(athlete.name)} su Strava"
                         class="px-3.5 py-2 rounded-xl bg-[#FC5200]/20 hover:bg-[#FC5200]/30 border border-[#FC5200]/40 text-orange-200 text-xs font-semibold flex items-center space-x-1.5 transition-all">
-                        <svg class="w-3.5 h-3.5 fill-[#FC5200]" viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7.01 13.828h4.172"/></svg>
+                        <svg class="w-3.5 h-3.5 stroke-[#FC5200]" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7.5"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         <span>Cerca su Strava</span>
                     </a>
                     <div class="px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold text-center">
