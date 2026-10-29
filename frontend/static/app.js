@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const firstNameInput = document.getElementById("firstName");
     const lastNameInput = document.getElementById("lastName");
     const teamCodeInput = document.getElementById("teamCode");
+    const teamCodeLabel = document.getElementById("teamCodeLabel");
     const timePeriodSelect = document.getElementById("timePeriodSelect");
     const timePeriodLabel = document.getElementById("timePeriodLabel");
     const exactDateInput = document.getElementById("exactDate");
@@ -207,7 +208,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Aggiorna banner
             bannerTitle.textContent = "Carriera & Risultati Ufficiali FIDAL (TDS & Altre)";
-            bannerDesc.innerHTML = 'Recupera l\'albo d\'oro ufficiale di tutte le mezze maratone, maratone e 10km FIDAL dell\'atleta (comprese gare storiche cronometrate da <b>TDS</b> come Vicenza e Cittadella negli ultimi 15 anni).';
+            bannerDesc.innerHTML = 'Recupera l\'albo d\'oro ufficiale di tutte le mezze maratone, maratone e 10km FIDAL dell\'atleta (comprese gare storiche cronometrate da <b>TDS</b> negli ultimi 15 anni).';
             bannerBadgeText.textContent = "Albo d'Oro Federale FIDAL";
             timePeriodLabel.textContent = "Filtro Anno Carriera";
             filterNoticeText.innerHTML = "Accesso all'<b>archivio storico ufficiale FIDAL.it</b>: tutte le gare competitive certificate.";
@@ -231,6 +232,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
             populateTimePeriods(WEDOSPORT_PERIODS);
         }
+
+        if (teamCodeLabel) {
+            if (mode === "trail" || mode === "fidal") {
+                teamCodeLabel.innerHTML = 'Società dell\'atleta <span class="text-xs font-normal text-slate-400">(filtro opzionale)</span>';
+                if (teamCodeInput) teamCodeInput.placeholder = "es. Running Club o Atletica (opzionale)";
+            } else {
+                teamCodeLabel.innerHTML = 'Società dell\'atleta <span class="text-xs font-normal text-slate-400">(filtro opzionale)</span>';
+                if (teamCodeInput) teamCodeInput.placeholder = "es. Running Club o Atletica";
+            }
+        }
+
         lucide.createIcons();
     }
 
@@ -251,6 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch("/api/calendar/status");
             if (!res.ok) return;
             const data = await res.json();
+            window.isAuthorMode = Boolean(data.author_mode);
             
             calendarStatusPill.classList.remove("hidden");
             if (data.is_cached && data.total_events > 0) {
@@ -390,14 +403,27 @@ document.addEventListener("DOMContentLoaded", () => {
         const eventName = eventNameInput ? eventNameInput.value.trim() : "";
         const periodValue = timePeriodSelect.value;
 
-        // Validazione minima: almeno un campo con almeno 2 lettere
+        // Validazione minima: verifica cognome atleta o modalità riservata
         const hasValidFirst = first.length >= 2;
         const hasValidLast = last.length >= 2;
         const hasValidTeam = team.length >= 2;
 
-        if (!hasValidFirst && !hasValidLast && !hasValidTeam) {
-            showError("Inserisci almeno il Cognome, il Nome oppure la Società (minimo 2 caratteri) per avviare la ricerca.");
-            return;
+        if (currentMode === "trail" || currentMode === "fidal") {
+            if (!hasValidLast) {
+                const targetArchivio = currentMode === "trail" ? "Wedosport" : "FIDAL";
+                showError(`Per consultare la carriera su ${targetArchivio} è necessario indicare il Cognome dell'atleta (la banca dati è anagrafica individuale).`);
+                return;
+            }
+        } else {
+            // Modalità 'future' o 'results'
+            if (!hasValidLast) {
+                if (hasValidTeam && window.isAuthorMode) {
+                    // Modalità autore attiva: consentita ricerca per sola società
+                } else {
+                    showError("Per la consultazione personale è necessario indicare il Cognome dell'atleta.");
+                    return;
+                }
+            }
         }
 
         clearResults();

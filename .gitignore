@@ -49,4 +49,14 @@ desktop.ini
 
 # Logs and databases
 *.log
+*.sqlite
+*.db
+
+# Author keys and secrets (never commit)
+*.key
+*.pem
+admin.key
+Runner_Scanner_riepilogo_privacy_licenza.md
+
+*.log
 *.sqlite3

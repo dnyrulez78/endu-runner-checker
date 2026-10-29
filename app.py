@@ -51,6 +51,33 @@ fidal_client = FidalClient(cache_ttl_seconds=3600)
 import sys
 BASE_DIR = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
 
+# Modulo di Verifica Firma Digitale per Modalità Autore (Ed25519)
+AUTHOR_PUBLIC_KEY_HEX = "eb7ab845bba95d85bf8f2a0dcb1c59115727b974adda0dc91c63d2fa531bfba8"
+AUTHOR_PAYLOAD = b"RunnerScanner:AuthorMode:Active"
+
+def verify_author_key() -> bool:
+    """Verifica crittograficamente la presenza e la validità del file admin.key firmato dall'autore."""
+    candidate_paths = [
+        os.path.join(BASE_DIR, "admin.key"),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "admin.key"),
+        os.path.join(os.getcwd(), "admin.key"),
+    ]
+    if getattr(sys, '_MEIPASS', None):
+        candidate_paths.append(os.path.join(os.path.dirname(sys.executable), "admin.key"))
+
+    for p in candidate_paths:
+        if os.path.isfile(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    sig_hex = f.read().strip()
+                from cryptography.hazmat.primitives.asymmetric import ed25519
+                pub = ed25519.Ed25519PublicKey.from_public_bytes(bytes.fromhex(AUTHOR_PUBLIC_KEY_HEX))
+                pub.verify(bytes.fromhex(sig_hex), AUTHOR_PAYLOAD)
+                return True
+            except Exception:
+                pass
+    return False
+
 # Monta le risorse statiche (CSS, JS)
 STATIC_DIR = os.path.join(BASE_DIR, "frontend", "static")
 if os.path.exists(STATIC_DIR):
@@ -83,7 +110,8 @@ async def get_calendar_status():
         date_from=endu_status.date_from,
         date_to=endu_status.date_to,
         cached_at=endu_status.cached_at,
-        ttl_seconds_remaining=endu_status.ttl_seconds_remaining
+        ttl_seconds_remaining=endu_status.ttl_seconds_remaining,
+        author_mode=verify_author_key()
     )
 
 
@@ -141,11 +169,15 @@ async def search_registrations(
     clean_event = event_name.strip() if event_name else ""
     clean_platform = (platform or "all").strip().lower()
 
-    if not clean_first and not clean_last and not clean_team:
-        raise HTTPException(
-            status_code=400,
-            detail="Specificare almeno il Cognome, il Nome oppure il Codice Società per effettuare la verifica."
-        )
+    author_active = verify_author_key()
+    if not clean_last:
+        if clean_team and author_active:
+            pass  # Modalità autore: consente la consultazione societaria
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Per la consultazione personale è necessario specificare il Cognome dell'atleta."
+            )
 
     start_time = time.time()
     try:
@@ -283,14 +315,18 @@ async def search_registrations_stream(
     clean_event = event_name.strip() if event_name else ""
     clean_platform = (platform or "all").strip().lower()
 
-    if not clean_first and not clean_last and not clean_team:
-        async def err_generator():
-            err_payload = {
-                "type": "error",
-                "message": "Specificare almeno il Cognome, il Nome oppure il Codice Società."
-            }
-            yield f"data: {json.dumps(err_payload, ensure_ascii=False)}\n\n"
-        return StreamingResponse(err_generator(), media_type="text/event-stream")
+    author_active = verify_author_key()
+    if not clean_last:
+        if clean_team and author_active:
+            pass  # Modalità autore: consente la consultazione societaria
+        else:
+            async def err_generator():
+                err_payload = {
+                    "type": "error",
+                    "message": "Per la consultazione personale è necessario specificare il Cognome dell'atleta."
+                }
+                yield f"data: {json.dumps(err_payload, ensure_ascii=False)}\n\n"
+            return StreamingResponse(err_generator(), media_type="text/event-stream")
 
     async def sse_event_generator():
         start_time = time.time()
@@ -460,11 +496,15 @@ async def search_past_results(
     clean_date = exact_date.strip() if exact_date else ""
     clean_event = event_name.strip() if event_name else ""
 
-    if not clean_first and not clean_last and not clean_team:
-        raise HTTPException(
-            status_code=400,
-            detail="Specificare almeno il Cognome, il Nome oppure la Società per la ricerca storica."
-        )
+    author_active = verify_author_key()
+    if not clean_last:
+        if clean_team and author_active:
+            pass  # Modalità autore: consente la consultazione societaria
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Per la consultazione personale è necessario specificare il Cognome dell'atleta."
+            )
 
     try:
         return await endu_client.scan_past_results(
@@ -503,14 +543,18 @@ async def search_past_results_stream(
     clean_date = exact_date.strip() if exact_date else ""
     clean_event = event_name.strip() if event_name else ""
 
-    if not clean_first and not clean_last and not clean_team:
-        async def err_generator():
-            err_payload = {
-                "type": "error",
-                "message": "Specificare almeno il Cognome, il Nome o la Società."
-            }
-            yield f"data: {json.dumps(err_payload, ensure_ascii=False)}\n\n"
-        return StreamingResponse(err_generator(), media_type="text/event-stream")
+    author_active = verify_author_key()
+    if not clean_last:
+        if clean_team and author_active:
+            pass  # Modalità autore: consente la consultazione societaria
+        else:
+            async def err_generator():
+                err_payload = {
+                    "type": "error",
+                    "message": "Per la consultazione personale è necessario specificare il Cognome dell'atleta."
+                }
+                yield f"data: {json.dumps(err_payload, ensure_ascii=False)}\n\n"
+            return StreamingResponse(err_generator(), media_type="text/event-stream")
 
     async def sse_event_generator():
         async for packet in endu_client.scan_past_results_stream(
@@ -552,7 +596,10 @@ async def search_fidal_athlete(
     clean_kw = city_or_race.strip() if city_or_race else None
 
     if not clean_last:
-        raise HTTPException(status_code=400, detail="Inserire il cognome dell'atleta.")
+        raise HTTPException(
+            status_code=400,
+            detail="L'archivio federale FIDAL è indicizzato per atleta: specificare il Cognome."
+        )
 
     try:
         return await fidal_client.search_athlete(
@@ -582,7 +629,10 @@ async def search_wedosport_career(
     clean_kw = race_name.strip() if race_name else None
 
     if not clean_last:
-        raise HTTPException(status_code=400, detail="Inserire il cognome dell'atleta.")
+        raise HTTPException(
+            status_code=400,
+            detail="L'archivio storico Trail di Wedosport è indicizzato per atleta: specificare il Cognome."
+        )
 
     try:
         return await wedosport_client.search_athlete_career(

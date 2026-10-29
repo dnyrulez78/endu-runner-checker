@@ -1,11 +1,11 @@
 # 🏃 Runner Scanner (v3.3)
 
-Applicazione desktop e web locale moderna, veloce e pulita (disponibile sia come **eseguibile standalone portatile per Windows (.exe)** a zero configurazione, sia come codice sorgente Python FastAPI + frontend HTML5/Tailwind CSS) progettata per podisti, atleti e società sportive per:
-1. **Verificare a quali manifestazioni future di Corsa su Strada & Trail Running** (road running, trail, skyrunning) presenti su [ENDU](https://www.endu.net), [ICRON](https://www.icron.it) e [Wedosport](https://www.wedosport.net) un atleta o una squadra risulta iscritto, con supporto a filtro unificato o per singola piattaforma.
+Applicazione desktop e web locale moderna, veloce e pulita (disponibile sia come **eseguibile standalone portatile per Windows (.exe)** a zero configurazione, sia come codice sorgente Python FastAPI + frontend HTML5/Tailwind CSS) progettata per podisti e appassionati per:
+1. **Verificare a quali manifestazioni future di Corsa su Strada & Trail Running** (road running, trail, skyrunning) presenti su [ENDU](https://www.endu.net), [ICRON](https://www.icron.it) e [Wedosport](https://www.wedosport.net) un atleta risulta iscritto, con supporto a filtro unificato o per singola piattaforma.
 2. **Consultare lo storico dei risultati e tempi di gara su ENDU**, con filtri mirati per data specifica e nome gara/città, con storico a ritroso fino a oltre 15 anni (dal 2010 ad oggi).
 3. **Interrogare l'Archivio Carriera Ufficiale FIDAL & gare storiche TDS**, risolvendo il recupero di tutte le manifestazioni competitive certificate non presenti su ENDU (cronometrate da TDS, TDS-Live, SDAM, WinningTime, Icron), visualizzando la scheda atleta federale, la società di appartenenza e i Primati Personali (PB).
 4. **Consultare la Carriera & Risultati Trail Running su Wedosport**, con accesso al palmarès completo di gare Trail, Ultra Trail, Skyrunning e Vertical dal **2004 ad oggi** (distanze, chilometri, tempi, piazzamenti e link alle classifiche ufficiali).
-5. **Cercare rapidamente l'atleta su Strava (Novità v3.3)**, tramite il pulsante scorciatoia dedicato presente accanto a ogni atleta trovato e nelle schede carriera per consultare il profilo e seguirlo (richiede login attivo su Strava).
+5. **Cercare rapidamente l'atleta su Strava**, tramite il pulsante scorciatoia dedicato presente accanto a ogni atleta trovato e nelle schede carriera per consultare il profilo pubblico e seguirlo (richiede login attivo su Strava).
 
 <p align="center">
   <img src="assets/screenshot.png" alt="Anteprima Interfaccia Runner Scanner v3.3" width="900" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" />
@@ -16,42 +16,38 @@ Applicazione desktop e web locale moderna, veloce e pulita (disponibile sia come
 ## 🌟 Novità Versione 3.3 & Caratteristiche Principali
 
 - **Versione Desktop Standalone Portable Windows (`RunnerScanner.exe`)**:
-  - Applicazione a finestra autonoma nativa Windows (basata su Edge WebView2 integrato nel sistema) pronta all'uso senza dover installare Python, Java o altre dipendenze.
+  - Applicazione a finestra autonoma nativa Windows (basata su Edge WebView2 integrato nel sistema operativo) pronta all'uso senza dover installare Python, Java o altre dipendenze.
   - Si avvia con un doppio clic, supporta il ridimensionamento a schermo intero e si arresta istantaneamente chiudendo la finestra con la classica **"X"** in alto a destra.
-  - **100% Portatile & Zero Tracce su Disco**: nessun installer, nessun file permanente creato e nessun dato salvato nel registro di sistema; tutto opera unicamente in memoria RAM volatile.
-- **Pulsante Scorciatoia "Cerca su Strava" (Novità v3.3)**:
-  - Consente di aprire con un singolo clic la ricerca atleti ufficiale di Strava in una nuova scheda del browser per seguire o verificare le attività pubbliche dei podisti.
-  - Presente sia accanto al nome di ogni singolo atleta nelle gare future e passate, sia all'interno dei riquadri anagrafici ufficiali (FIDAL e Wedosport).
-  - **Zero scraping & 100% privacy**: l'applicazione non interroga né memorizza dati da Strava; si tratta di una semplice scorciatoia di ricerca per l'utente autenticato su Strava.
+  - **Portatile & Nessun database permanente**: nessun file permanente creato nel registro di sistema; il recupero e l'elaborazione dei dati avvengono temporaneamente in memoria per la visualizzazione a schermo.
+- **Pulsante Scorciatoia "Cerca su Strava"**:
+  - Consente di aprire con un singolo clic la ricerca atleti ufficiale di Strava nel browser per verificare le attività pubbliche dei podisti.
+  - Presente sia accanto al nome di ciascun atleta nelle gare future e passate, sia all'interno dei riquadri anagrafici ufficiali (FIDAL e Wedosport).
+  - **Zero scraping & Tutela della privacy**: l'applicazione non interroga né memorizza dati da Strava; si tratta di una semplice scorciatoia di navigazione (deep link) per l'utente autenticato su Strava.
   <p align="center" style="margin-top: 8px; margin-bottom: 12px;">
     <img src="assets/strava_button.png" alt="Pulsante Cerca su Strava" width="160" style="border-radius: 6px;" />
   </p>
-- **Integrazione Piattaforma Trail Running Wedosport (Introdotta in v3.2)**:
-  - Nuova scheda dedicata **Trail (Wedosport)** con archivio storico completo a partire dal **2004 ad oggi** (oltre 22 anni di manifestazioni montane).
+- **Integrazione Piattaforma Trail Running Wedosport**:
+  - Scheda dedicata **Carriera Trail (Wedosport)** con archivio storico completo a partire dal **2004 ad oggi** (oltre 22 anni di manifestazioni off-road).
   - Scheda gara con dettagli completi: specialità (*Trail Running, Ultra Trail, Skyrunning, Vertical*), chilometraggio esatto, tempo finale, posizione assoluta e di genere, stato della prova e collegamento diretto alla graduatoria ufficiale Wedosport.
-  - Verifica automatica delle **iscrizioni future alle gare Wedosport** (parsing trasparente di `/lista-iscritti/{slug}`) sia nella ricerca combinata che con filtro dedicato.
+  - Verifica automatica delle **iscrizioni future alle gare Wedosport** nella scheda *Iscrizioni Future* (sia nella ricerca combinata che con filtro dedicato).
   - Badge cromatico distintivo ambra/montagna `WEDOSPORT` per identificare immediatamente gli eventi off-road.
 - **Supporto Multi-Piattaforma Unificato (ENDU + ICRON + Wedosport)**:
   - Scansione parallela automatica delle manifestazioni presenti su **ENDU** (`endu.net`), **ICRON** (`icron.it`) e **Wedosport** (`wedosport.net`).
-  - Interroga direttamente gli eventi podistici ICRON (es. *iRun21 La Mezza di Vicenza*, *Due Mari Marathon*, ecc.) con supporto sia ai cognomi che ai **codici società FIDAL** (es. `vi654` convertito lato server in *Vicenza Runners*).
   - **Filtro Piattaforma a 4 Opzioni**: possibilità di selezionare *Tutte le piattaforme*, *Solo ENDU*, *Solo ICRON* oppure *Solo Wedosport (Trail)*.
 - **Quattro Modalità con Schede Dedicate**:
   - **Iscrizioni Future**: Scansiona il calendario per verificare la presenza dell'atleta o della squadra su ENDU, ICRON e Wedosport.
-  - **Risultati ENDU**: Cerca in quali gare su strada passate l'atleta ha tagliato il traguardo e mostra i tempi ufficiali, real-time e piazzamenti.
+  - **Risultati ENDU**: Cerca in quali gare su strada passate l'atleta ha tagliato il traguardo e mostra tempi ufficiali, real-time e piazzamenti.
   - **Archivio FIDAL / TDS**: Recupera la carriera agonistica federale certificata (Mezze Maratone, 10km, Maratone) e include tutte le manifestazioni cronometrate da **TDS**, **SDAM** o **WinningTime** fin dal 2010.
-  - **Trail (Wedosport)**: Consulta l'intera carriera off-road (Trail, Ultra, Skyrunning) dal 2004 ad oggi.
+  - **Carriera Trail (Wedosport)**: Consulta l'intera carriera off-road (Trail, Ultra, Skyrunning) dal 2004 ad oggi.
 - **Filtro Mirato per Nome Gara o Città**:
-  - Consente di restringere la scansione a una singola manifestazione o località (es. digitando `jesolo` o `vicenza` vengono scansionate solo le gare pertinenti in 1-2 secondi anziché centinaia di eventi).
+  - Consente di restringere la scansione a una singola manifestazione o località per interrogare unicamente le gare pertinenti in pochi secondi.
 - **Filtro per Data Specifica**:
-  - Possibilità di inserire il giorno esatto di una gara (es. `25/05/2024`) per interrogare unicamente quell'evento.
+  - Possibilità di inserire il giorno esatto di una gara (es. `25/05/2024`) per verificare solo quell'evento.
 - **Scheda Atleta Federale & Primati Personali (PB)**:
   - Nella scheda FIDAL/TDS vengono evidenziati categoria, società sportiva, anno di nascita e i record personali (PB) certificati su ogni distanza.
-- **Nessun Login Richiesto**: L'accesso ai risultati digitali ufficiali e alle liste iscritti avviene in modalità pubblica on-demand.
-- **Alte Prestazioni & Concorrenza Asincrona**: Chiamate parallele con `httpx` gestite da semafori `asyncio` (6-8 connessioni simultanee) per verificare centinaia di manifestazioni in pochi secondi senza bloccare l'interfaccia.
+- **Nessun Login Richiesto**: L'accesso alle informazioni sui portali avviene su risorse pubblicamente consultabili.
+- **Concorrenza Asincrona & Connessioni Controllate**: Chiamate parallele con `httpx` regolate da semafori `asyncio` (6-8 connessioni simultanee) e cache tecnica dei calendari per non sovraccaricare i server remoti.
 - **Barra di Avanzamento Real-Time (SSE)**: La scansione trasmette aggiornamenti in tempo reale via Server-Sent Events; ogni risultato trovato compare all'istante a schermo.
-- **Caching Intelligente in Memoria RAM**: I calendari delle manifestazioni vengono memorizzati temporaneamente in memoria per evitare chiamate ripetute ai server.
-- **Privacy & Assenza di Database Permanente**: Nessun dato personale memorizzato su disco; tutto opera on-demand in memoria volatile.
-- **Esportazione Risultati**: Pulsante rapido per copiare il riepilogo testuale formattato negli appunti con un clic.
 - **Suite di Test Automatizzata**: 17 test integrati (`tests/test_api.py`) con copertura di tutti i provider e flussi di streaming.
 
 ---
@@ -65,9 +61,10 @@ C:\ENDU-Tool\
 ├── runner_scanner.spec      # Configurazione PyInstaller per bundling standalone
 ├── compila_exe.bat          # Script per generare RunnerScanner.exe con 1 clic
 ├── version_info.txt         # Metadati Windows PE dell'eseguibile (v3.3, copyright)
-├── requirements.txt         # Dipendenze Python (fastapi, uvicorn, httpx, pywebview)
+├── requirements.txt         # Dipendenze Python (fastapi, uvicorn, httpx, pywebview, cryptography)
 ├── avvia_app.bat            # Script di avvio rapido web nel browser (Windows)
-├── README.md                # Documentazione tecnica e guida operativa
+├── LICENSE                  # Licenza per uso strettamente personale e privato
+├── README.md                # Documentazione tecnica e condizioni d'uso
 ├── assets\
 │   ├── icon.ico             # Icona applicazione Windows multi-risoluzione
 │   ├── icon.png             # Logo e icona dell'applicazione ad alta risoluzione
@@ -91,187 +88,126 @@ C:\ENDU-Tool\
 
 ---
 
-## 🚀 Guida Passo-Passo per l'Installazione e l'Avvio
+## 🚀 Guida all'Installazione e all'Avvio
 
-Runner Scanner può essere utilizzato in **due modalità alternative**:
+Runner Scanner può essere eseguito in **due modalità alternative**:
 
-### 📦 Metodo 1: Eseguibile Standalone Portatile (Consigliato per tutti gli utenti Windows)
+### 📦 Metodo 1: Eseguibile Standalone Portatile (Consigliato per Windows)
 
-Se desideri utilizzare Runner Scanner come un normale programma Windows senza alcuna configurazione tecnica:
+Se desideri utilizzare Runner Scanner come applicazione autonoma senza configurare Python:
 
 1. **Scarica `RunnerScanner.exe`**:
-   - Scarica l'ultima versione precompilata dalla sezione [Releases](https://github.com/dnyrulez78/runner-scanner/releases) di GitHub.
+   - Scarica l'ultima release dalla sezione [Releases](https://github.com/dnyrulez78/runner-scanner/releases) di GitHub.
 2. **Avvia il programma**:
-   - Fai doppio clic su **`RunnerScanner.exe`**.
-   - Si aprirà all'istante la finestra desktop autonoma di Runner Scanner.
-3. **Vantaggi e Caratteristiche**:
-   - **Zero Requisiti**: non richiede l'installazione di Python, Java o runtime esterni (funziona nativamente su qualsiasi PC con Windows 10 o Windows 11 tramite Edge WebView2 già presente nel sistema operativo).
-   - **100% Portatile**: puoi posizionare `RunnerScanner.exe` ovunque (sul Desktop, nella cartella Download o su una chiavetta USB). Non richiede diritti di amministratore.
-   - **Zero Residui**: non modifica il Registro di Windows né memorizza dati su disco; tutte le ricerche risiedono unicamente nella memoria RAM volatile.
-   - **Chiusura Pulita**: chiudendo la finestra con la classica **"X"** in alto a destra, l'applicazione e il server interno si spengono all'istante liberando completamente la memoria.
-   - **Link Esterni nel Tuo Browser**: cliccando sui pulsanti di classifica o su "Cerca su Strava", i collegamenti si aprono automaticamente nel tuo browser predefinito (Chrome, Edge, Firefox).
+   - Fai doppio clic su **`RunnerScanner.exe`**. Si aprirà la finestra desktop dell'applicazione.
+3. **Caratteristiche**:
+   - **Zero Requisiti**: non richiede l'installazione di Python né runtime esterni (funziona nativamente su qualsiasi PC con Windows 10 o Windows 11 tramite Edge WebView2 già integrato nel sistema).
+   - **Portatile**: può essere posizionato in qualsiasi cartella locale o su una chiavetta USB.
+   - **Chiusura Pulita**: chiudendo la finestra con la **"X"** in alto a destra, l'applicazione e il server interno si spengono all'istante liberando la memoria.
 
 ---
 
-### 🐍 Metodo 2: Esecuzione da Codice Sorgente (Per sviluppatori o utenti Python)
+### 🐍 Metodo 2: Esecuzione da Codice Sorgente (Python)
 
-Se preferisci eseguire il codice sorgente o effettuare modifiche locali:
+Se desideri eseguire il codice sorgente o effettuare verifiche locali:
 
-#### ⚠️ Prerequisito su un Nuovo PC (Una tantum)
-Se stai aprendo il progetto su un computer dove **Python non è ancora presente**:
-1. Scarica Python dal sito ufficiale: 👉 [python.org/downloads](https://www.python.org/downloads/) (consigliato Python 3.11 o 3.12).
-2. **FONDAMENTALE**: Nella primissima schermata dell'installazione, spunta la casella in basso:
-   **`[X] Add python.exe to PATH`**
-3. Clicca su **Install Now** e attendi il completamento.
+#### Prerequisito: Python 3.10+
+Assicurati che Python sia installato con l'opzione `Add python.exe to PATH`.
 
-#### Opzione A: Avvio rapido con doppio clic
-1. Fai doppio clic su **`avvia_app.bat`**.
-2. Lo script rileverà automaticamente Python, installerà le librerie necessarie e aprirà il browser all'indirizzo:
-   👉 **`http://localhost:8000`**
+#### Avvio rapido con doppio clic
+Fai doppio clic sul file **`avvia_app.bat`**. Lo script installerà le dipendenze mancanti e aprirà il browser su:
+👉 **`http://localhost:8000`**
 
-#### Opzione B: Avvio manuale da Terminale (PowerShell o CMD)
-1. Apri PowerShell nella cartella del progetto:
-   ```powershell
-   cd C:\ENDU-Tool
-   ```
-2. Installa le librerie:
-   ```powershell
-   pip install -r requirements.txt
-   ```
-3. Avvia la versione desiderata:
-   - **Per la versione Web nel Browser**:
-     ```powershell
-     python app.py
-     ```
-     e apri `http://localhost:8000` nel browser.
-   - **Per la versione Finestra Desktop Nativa**:
-     ```powershell
-     python desktop_app.py
-     ```
+#### Avvio manuale da Terminale
+```powershell
+# Installa le dipendenze
+pip install -r requirements.txt
 
----
+# Avvia l'interfaccia Web locale nel browser
+python app.py
 
-### 🔨 Come Ricompilare l'Eseguibile Windows da Soli (Opzionale)
-
-Se hai apportato modifiche al codice sorgente e desideri generare una nuova versione standalone di `RunnerScanner.exe`:
-
-1. Installa PyInstaller:
-   ```powershell
-   pip install pyinstaller pywebview
-   ```
-2. Fai **doppio clic** sul file **`compila_exe.bat`** oppure esegui da terminale:
-   ```powershell
-   pyinstaller runner_scanner.spec --clean --noconfirm
-   ```
-3. Il nuovo file compilato pronto per l'uso verrà salvato in `dist\RunnerScanner.exe`.
+# Oppure avvia la finestra desktop nativa
+python desktop_app.py
+```
 
 ---
 
 ## 🎯 Come Eseguire una Ricerca
 
-Nell'interfaccia web puoi alternare tra quattro modalità tramite le schede in alto:
+Nell'interfaccia puoi alternare tra quattro modalità tramite le schede in alto:
 
 ### 1. Scheda "Iscrizioni Future"
-1. Inserisci il **Cognome** (obbligatorio, es. `Rossi`, `Ferrari`, `Bianchi`) e facoltativamente il **Nome** (es. `Mario`).
-2. **Codice o Società (opzionale)**: per filtrare la squadra (es. `vi654` o `Vicenza Runners`) o cercare tutti gli atleti del team.
-3. Seleziona l'orizzonte temporale (predefinito: **5 mesi**).
+1. Inserisci il **Cognome** dell'atleta (obbligatorio per la consultazione personale) e facoltativamente il **Nome**.
+2. **Società dell'atleta (filtro opzionale)**: per disambiguare atleti con lo stesso cognome o filtrare per squadra.
+3. Seleziona l'orizzonte temporale desiderato (predefinito: **5 mesi**).
 4. **Piattaforma**: seleziona se interrogare *Tutte le piattaforme*, *Solo ENDU*, *Solo ICRON* oppure *Solo Wedosport (Trail)*.
-5. *(Opzionale)* Inserisci una data specifica o una parola chiave per la gara (es. `Vicenza`, `Borno`, `Foligno`).
+5. *(Opzionale)* Inserisci una data specifica o una parola chiave per la gara (es. `Foligno`, `Roma`).
 6. Clicca su **Verifica Iscrizioni**: visualizzerai in tempo reale le manifestazioni a cui l'atleta risulta iscritto con il relativo pettorale assegnato e il badge della piattaforma.
 
 ### 2. Scheda "Risultati ENDU"
-1. Inserisci il **Cognome** e/o il **Nome** del podista.
-2. Seleziona l'intervallo storico desiderato (es. *Ultimi 12 mesi*, *Ultimi 24 mesi*, o qualsiasi anno dal *2010* al *2026*).
-3. *(Opzionale ma consigliato)* Inserisci il **Nome Gara o Città** (es. `Jesolo`) per limitare la scansione ai soli eventi pertinenti e ottenere i risultati all'istante.
-4. Clicca su **Cerca Risultati ENDU**: visualizzerai tutte le gare concluse dall'atleta con tempi ufficiali, real time, posizioni assolute, di genere e di categoria, e link alle classifiche ufficiali.
+1. Inserisci il **Cognome** del podista.
+2. Seleziona l'intervallo storico desiderato (*Ultimi 12 mesi*, *Ultimi 24 mesi*, o qualsiasi anno dal *2010* ad oggi).
+3. *(Opzionale)* Inserisci il **Nome Gara o Città** per limitare la scansione ai soli eventi pertinenti e ottenere i risultati all'istante.
+4. Clicca su **Cerca Risultati ENDU**: visualizzerai tutte le gare concluse con tempi ufficiali, real-time, piazzamenti e link alle classifiche ufficiali.
 
 ### 3. Scheda "Archivio FIDAL / TDS"
-1. Inserisci il **Cognome** (es. `Rossi`) e facoltativamente il **Nome** (es. `Mario`).
+1. Inserisci il **Cognome** e facoltativamente il **Nome** dell'atleta.
 2. *(Opzionale)* Filtra per anno solare o per città/gara.
 3. Clicca su **Cerca Carriera FIDAL**:
-   - Visualizzerai la **scheda ufficiale dell'atleta** con data di nascita, categoria e società di tesseramento.
-   - Il box **Primati Personali (PB)** certificati su 10km, Maratonina, Maratona.
-   - L'elenco cronologico di tutte le gare ufficiali disputate, incluse le gare cronometrate da **TDS** (come le storiche mezze maratone di Vicenza o Cittadella).
+   - Visualizzerai la **scheda ufficiale dell'atleta** con data di nascita, categoria e società di appartenenza.
+   - Il riquadro **Primati Personali (PB)** certificati su 10km, Maratonina, Maratona.
+   - L'elenco cronologico di tutte le gare ufficiali disputate, incluse le manifestazioni storiche cronometrate da **TDS**.
 
-### 4. Scheda "Trail (Wedosport)"
-1. Inserisci il **Cognome** (es. `Rossi`) e facoltativamente il **Nome** (es. `Mario`).
+### 4. Scheda "Carriera Trail (Wedosport)"
+1. Inserisci il **Cognome** e facoltativamente il **Nome** dell'atleta.
 2. *(Opzionale)* Filtra per anno specifico dal 2004 ad oggi.
 3. Clicca su **Cerca Trail Wedosport**:
    - Visualizzerai l'elenco cronologico di tutte le gare di **Trail Running, Ultra Trail, Skyrunning e Vertical** disputate.
-   - Badge con chilometraggio (`Km`), tempo impiegato, posizione assoluta e di genere, stato della gara e link diretto alla classifica ufficiale Wedosport.
+   - Dettaglio con chilometraggio (`Km`), tempo impiegato, posizione assoluta e di genere, stato della gara e link diretto alla classifica ufficiale Wedosport.
 
-### 5. Ricerca Rapida dell'Atleta su Strava (Novità v3.3)
-In qualsiasi modalità di ricerca (Iscrizioni Future, Risultati ENDU, Archivio FIDAL / TDS o Trail Wedosport):
-1. Accanto al nome di ciascun atleta individuato (o all'interno della scheda profilo carriera) è presente il pulsante arancione:
-   <p align="left" style="margin-top: 6px; margin-bottom: 8px;">
-     <img src="assets/strava_button.png" alt="Pulsante Cerca su Strava" width="150" style="border-radius: 6px;" />
-   </p>
-2. Facendo clic sul pulsante, si aprirà una nuova scheda del browser direttamente con la query di ricerca del runner su Strava:
-   `https://www.strava.com/athletes/search?text=Nome+Cognome`
-3. **Nota di funzionamento**: Per visualizzare i risultati e accedere ai profili su Strava è necessario avere una sessione di login attiva sul sito di Strava nel proprio browser (altrimenti la piattaforma protegge la directory e richiede l'accesso).
+### 5. Scorciatoia "Cerca su Strava"
+In qualsiasi scheda, accanto a ciascun atleta individuato è presente il pulsante arancione **Cerca su Strava**:
+- Facendo clic, si apre una nuova scheda del browser con la ricerca atleti su Strava pre-impostata col nominativo (`https://www.strava.com/athletes/search?text=...`).
+- **Nota**: Per consultare i profili su Strava è necessario disporre di un account personale con sessione di login attiva su Strava nel proprio browser.
 
 ---
 
-## 🛡️ Note Tecniche sulle Sorgenti Dati
+## ⚖️ Destinazione d'Uso, Condizioni e Tutela Privacy
 
-- **API Calendario Eventi ENDU**:
-  `GET https://www.endu.net/api/events?dateFrom={start}&dateTo={end}&discipline=road_running&pageSize=500&sort=date.from`
-- **API Iscritti ENDU**:
-  `GET https://www.endu.net/api/editions/{event_id}/entrants?firstName=...&lastName=...&teamCode=...`
-- **API Risultati ENDU**:
-  - Settings gara: `GET https://www.endu.net/api/results/events/{event_id}/settings`
-  - Risultati atleti: `GET https://www.endu.net/api/results?editionId={edition_id}&raceId={race_id}&categoryId={cat_id}&optionId={opt_id}&searchText={search_text}`
-- **API Manifestazioni & Iscritti ICRON**:
-  - Calendario manifestazioni: `POST https://www.icron.it/IcronNewGO/getOpenEvents` (filtrato per disciplina running e road racing).
-  - Verifica iscritti per atleta o codice società: `POST https://www.icron.it/IcronNewGO/getIscrizioni` con parametro `criterio` (`squadra:{code}` o `cognome:{last}`), garantendo accesso trasparente senza autenticazione anche su gare con elenco generale non aperto.
-- **Web Service Archivio & Iscritti Wedosport**:
-  - Ricerca atleti e ID anagrafico: `POST https://www.wedosport.net/ricerca_gare.cfm`
-  - Carriera agonistica Trail dal 2004: `POST https://www.wedosport.net/ricerca_atleta_dettaglio.cfm`
-  - Calendario manifestazioni aperte: `GET https://www.wedosport.net/iscrizioni.cfm`
-  - Verifica iscritti per singola gara: `GET https://www.wedosport.net/lista-iscritti/{slug}` con parsing dinamico delle colonne della tabella pubblica.
-- **Archivio Federale FIDAL & TDS**:
-  - Ricerca anagrafica: `POST https://www.fidal.it/result.php` con parametro `cerca`
-  - Estrazione profilo e graduatorie: analisi diretta asincrona della scheda atleta ufficiale `https://www.fidal.it/atleta/{slug}/{hash}` senza dipendenze esterne pesanti.
-- **Gestione Concorrenza & Rate Limit Polite**: Semafori asincroni controllati con `httpx` (`asyncio.Semaphore(8)` per ENDU/ICRON, `(6)` per Wedosport) per garantire massima reattività nel pieno rispetto dei server remoti.
+### Destinazione d'Uso e Condizioni di Licenza
 
----
+Runner Scanner è destinato **esclusivamente a persone fisiche per consultazioni personali e private** delle informazioni sportive disponibili sulle piattaforme sorgenti.
 
-## ⚖️ Conformità Legale, Tutela Privacy (GDPR) e Condizioni d'Uso
+**Non è consentito** utilizzare il software nell’esercizio o a supporto di attività aziendali, professionali, associative o istituzionali, né per conto di aziende, società sportive, associazioni, enti o altre organizzazioni, anche senza scopo di lucro. L’appartenenza dell’utilizzatore a una società sportiva non impedisce l’uso strettamente personale; è categoricamente escluso l’uso per conto della società o di terzi.
 
-Questo software è stato sviluppato con la massima cura dal punto di vista tecnico e giuridico, prestando particolare attenzione alla disciplina sulla protezione dei dati personali e alla tutela dei servizi terzi:
+Non sono consentiti:
+- raccolta sistematica o massiva di dati relativi ad atleti;
+- creazione o aggiornamento di archivi, banche dati, elenchi o dossier su altre persone;
+- monitoraggio continuativo o automatizzato delle iscrizioni e delle attività di terzi;
+- utilizzo dei dati per marketing, selezione, profilazione, valutazione professionale o altre finalità organizzative;
+- rivendita, cessione o pubblicazione di elenchi o profili ricavati tramite il software;
+- esposizione del programma come servizio web accessibile a terzi o integrazione in servizi destinati alle organizzazioni.
 
-1. **Finalità Esclusivamente Personale e Domestica (Esenzione GDPR Art. 2, par. 2, lett. c Reg. UE 2016/679)**:
-   - Ai sensi dell'**Articolo 2, paragrafo 2, lettera c del Regolamento Generale sulla Protezione dei Dati (GDPR - Regolamento UE 2016/679)**, il presente software è progettato e concesso per l'utilizzo da parte di persone fisiche per l'esercizio di **attività a carattere esclusivamente personale o domestico** (es. verifica delle proprie iscrizioni agonistiche, supporto personale ai compagni della propria associazione sportiva, consultazione del proprio palmarès sportivo).
-   - È espressamente vietato l'impiego del software per attività commerciali sistematiche, profilazione di massa a fini di marketing o rivendita a terzi di elenchi e anagrafiche.
+Il recupero e l’elaborazione temporanei necessari alla singola consultazione personale rientrano nella funzione del programma. Non costituiscono autorizzazione a creare raccolte sistematiche o a diffondere i dati consultati.
 
-2. **Privacy by Design e Totale Assenza di Database Persistenti**:
-   - L'applicazione opera secondo i principi di minimizzazione e *privacy by design*: **non include alcun database** (né SQLite, né MySQL, né PostgreSQL, né file di memorizzazione su disco).
-   - Nessun dato personale o risultato sportivo viene salvato o archiviato in modo permanente sul dispositivo locale né trasmesso a server esterni di terze parti.
-   - Le informazioni consultate transitano unicamente nella memoria volatile (RAM) per il tempo strettamente necessario a comporre la visualizzazione a video ed evaporano alla chiusura del processo o allo scadere della cache tecnica (TTL 1 ora).
+Queste condizioni disciplinano l’utilizzo di Runner Scanner. Non attribuiscono diritti sui dati dei portali e non sostituiscono le condizioni d’uso delle piattaforme sorgenti o la normativa applicabile. L’utente deve rispettare eventuali limitazioni di accesso e non deve eludere protezioni o blocchi.
 
-3. **Accesso Trasparente a sole Risorse di Pubblico Dominio (No Bypassing di Protezioni)**:
-   - Tutte le richieste effettuate alle piattaforme ([ENDU](https://www.endu.net), [ICRON](https://www.icron.it), [Wedosport](https://www.wedosport.net), [FIDAL](https://www.fidal.it)) interrogano pagine web, form di ricerca e sezioni rese **pubblicamente consultabili su Internet** dagli organizzatori delle manifestazioni e dai gestori dei siti web, destinate alla libera consultazione degli elenchi iscritti e delle classifiche ufficiali da parte di atleti, cronisti e appassionati.
-   - Il software **NON esegue alcun bypass di credenziali di login**, non forza aree riservate protette da password, non elude meccanismi di verifica CAPTCHA, non viola token crittografici né accede a dati sensibili o coperti da segreto.
+### Dati e Funzionamento Locale
 
-4. **Fair Use, Rispetto dell'Infrastruttura di Rete e Rate Limiting Polite**:
-   - L'applicazione implementa semafori asincroni controllati a bassa concorrenza (massimo 6-8 richieste simultanee) e sistemi di caching in memoria RAM per i calendari gare. In questo modo si evitano interrogazioni ridondanti e si garantisce un utilizzo responsabile che non reca alcun pregiudizio, rallentamento o rischio di sovraccarico (Denial of Service) all'infrastruttura dei servizi ospitanti.
+- **Elaborazione temporanea**: Il programma recupera ed elabora temporaneamente le informazioni richieste per mostrarle sul dispositivo dell’utente. Non prevede un database applicativo permanente delle ricerche né un server centrale dell’autore per raccoglierle.
+- **Interazione esterna**: Le richieste vengono inviate alle piattaforme interrogate. Aprendo un collegamento esterno si interagisce con il sito di destinazione; il pulsante «Cerca su Strava» invia a Strava il nominativo come parametro della ricerca, senza recuperare automaticamente profili o attività da Strava.
+- **Tracce tecniche locali**: Browser, componenti di sistema, appunti, log o altri strumenti del dispositivo possono conservare tracce tecniche. Non viene garantita l’assenza assoluta di tracce su disco.
+- **GDPR**: L’esclusione dal GDPR per attività esclusivamente personali o domestiche dipende dalle circostanze effettive dell’utilizzo e non è garantita dalla sola esecuzione locale del programma.
 
-5. **Tutela dei Marchi e Clausola di Non-Affiliazione**:
-   - I marchi, denominazioni commerciali, loghi e grafiche di **ENDU** (Engagigo S.r.l. / Evodata S.r.l.), **ICRON** (Next Race S.r.l. / Icron), **Wedosport** (Wedosport S.r.l.), **FIDAL** (Federazione Italiana di Atletica Leggera) e dei servizi di cronometraggio menzionati (**TDS**, **SDAM**, **WinningTime**) appartengono ai rispettivi legittimi titolari.
-   - Il presente software è un progetto open-source del tutto indipendente e non intrattiene alcun rapporto di affiliazione, partnership, sponsorizzazione o approvazione formale con le aziende e gli enti sopracitati. I nomi sono utilizzati esclusivamente con finalità descrittiva e referenziale per indicare la fonte pubblica dei dati sportivi consultati.
+### Fonti, Marchi e Accuratezza
 
-6. **Funzionalità "Cerca su Strava": Sola Ricerca Esterna, Zero Profilazione e Requisito di Login**:
-   - **Nessuna associazione automatica**: Il pulsante *"Cerca su Strava"* rappresenta una semplice scorciatoia di navigazione (deep link) che apre il motore di ricerca di Strava in una nuova scheda pre-impostando il nome e cognome (`https://www.strava.com/athletes/search?text=...`). **Non associa in alcun modo automaticamente o in maniera univoca l'atleta a uno specifico profilo Strava**.
-   - **Valutazione e scelta dell'utente (Gestione Omonimie)**: Data la presenza di omonimie nel mondo dello sport, è unicamente l'utente che – tra i risultati generici restituiti da Strava – valuta e sceglie se e quale atleta consultare o seguire.
-   - **Requisito di Autenticazione (Login Attivo su Strava)**: La funzione di ricerca interna di Strava è un servizio protetto di Strava Inc. Essa produce risultati ed è consultabile **esclusivamente se l'utente è già loggato con il proprio account personale su Strava nel browser**. Se l'utente non ha effettuato il login, Strava non mostra alcun dato personale, attività GPS o profilo sportivo.
-   - **Zero Scraping, Zero Chiamate Backend e Nessun Trattamento Dati**: L'applicazione non esegue alcuno scraping o richiesta automatica verso Strava, non preleva né memorizza dati di allenamento, frequenze cardiache o tracce GPS e non interagisce con le API di Strava. La privacy e le impostazioni di visibilità degli atleti rimangono gestite al 100% dalla piattaforma Strava nel pieno rispetto del GDPR (Reg. UE 2016/679).
-
-7. **Licenza Open-Source e Limitazione di Responsabilità**:
-   - Il software viene fornito "così com'è" (*as is*), senza garanzie esplicite o implicite, sotto licenza open-source [MIT](LICENSE). L'utente finale è l'unico responsabile dell'utilizzo del software in conformità alle leggi vigenti e ai termini d'uso dei portali liberamente consultati.
+- Runner Scanner è un progetto indipendente, non affiliato, sponsorizzato o approvato da ENDU, ICRON, Wedosport, FIDAL, Strava o dagli altri servizi citati. Le denominazioni sono utilizzate per identificare le fonti o le destinazioni dei collegamenti. I relativi marchi appartengono ai rispettivi titolari.
+- I risultati possono essere incompleti, non aggiornati o riferiti a omonimi. Verificare sempre le informazioni sul portale sorgente; l’assenza di un risultato non dimostra l'assenza di un’iscrizione.
+- Il software è fornito "così com'è" senza garanzie ulteriori rispetto a quelle inderogabili previste dalla legge.
 
 ---
 
 ## 👤 Autore & Licenza
 
 - **Autore**: [@dnyrulez78](https://github.com/dnyrulez78)
-- **Licenza**: Distribuito sotto licenza open-source [MIT](LICENSE). Sei libero di utilizzare, modificare e distribuire questo software citandone la paternità.
+- **Licenza**: Codice sorgente disponibile con **Licenza per Uso Esclusivamente Personale e Privato** ([LICENSE](LICENSE)). È vietato qualsiasi uso aziendale, professionale, associativo o per conto di organizzazioni terze.

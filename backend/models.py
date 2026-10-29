@@ -55,6 +55,8 @@ class CalendarStatusResponse(BaseModel):
     date_to: Optional[str] = None
     cached_at: Optional[str] = None
     ttl_seconds_remaining: Optional[int] = None
+    author_mode: Optional[bool] = False
+
 
 
 # --- Modelli per la Ricerca Risultati Storici (Gare Passate) ---

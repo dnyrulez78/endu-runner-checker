@@ -36,6 +36,8 @@ hidden_imports = [
     'fastapi',
     'starlette',
     'pydantic',
+    'cryptography',
+    'cryptography.hazmat.primitives.asymmetric.ed25519',
 ]
 
 a = Analysis(
