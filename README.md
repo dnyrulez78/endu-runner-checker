@@ -70,6 +70,7 @@ C:\ENDU-Tool\
 ├── README.md                # Documentazione tecnica e guida operativa
 ├── assets\
 │   ├── icon.ico             # Icona applicazione Windows multi-risoluzione
+│   ├── icon.png             # Logo e icona dell'applicazione ad alta risoluzione
 │   ├── screenshot.png       # Screenshot dell'interfaccia utente a 4 schede
 │   └── strava_button.png    # Dettaglio interfaccia del pulsante di ricerca Strava
 ├── backend\
