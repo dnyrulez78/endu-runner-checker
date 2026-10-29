@@ -178,12 +178,12 @@ In qualsiasi scheda, accanto a ciascun atleta individuato è presente il pulsant
 
 Runner Scanner è destinato **esclusivamente a persone fisiche per consultazioni personali e private** delle informazioni sportive disponibili sulle piattaforme sorgenti.
 
-**Non è consentito** utilizzare il software nell’esercizio o a supporto di attività aziendali, professionali, associative o istituzionali, né per conto di aziende, società sportive, associazioni, enti o altre organizzazioni, anche senza scopo di lucro. L’appartenenza dell’utilizzatore a una società sportiva non impedisce l’uso strettamente personale; è categoricamente escluso l’uso per conto della società o di terzi.
+**Non è consentito** utilizzare il software nell’esercizio o a supporto di attività aziendali, professionali, associative o istituzionali, né per conto di aziende, società sportive, associazioni, enti o altre organizzazioni, anche senza scopo di lucro. L’appartenenza dell’utilizzatore a una società sportiva non impedisce l’uso strettamente personale; è categoricamente escluso l’uso nell’esercizio o a supporto di attività delle organizzazioni sopra indicate, anche se svolto da una persona fisica.
 
 Non sono consentiti:
-- raccolta sistematica o massiva di dati relativi ad atleti;
+- raccolta massiva o sistematica di dati relativi ad atleti, oltre il recupero temporaneo necessario alla singola consultazione personale avviata dall'utilizzatore;
 - creazione o aggiornamento di archivi, banche dati, elenchi o dossier su altre persone;
-- monitoraggio continuativo o automatizzato delle iscrizioni e delle attività di terzi;
+- monitoraggio ricorrente, programmato o continuativo delle iscrizioni e delle attività di terzi;
 - utilizzo dei dati per marketing, selezione, profilazione, valutazione professionale o altre finalità organizzative;
 - rivendita, cessione o pubblicazione di elenchi o profili ricavati tramite il software;
 - esposizione del programma come servizio web accessibile a terzi o integrazione in servizi destinati alle organizzazioni.

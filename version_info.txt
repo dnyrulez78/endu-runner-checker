@@ -19,11 +19,11 @@ VSVersionInfo(
         StringTable(
           u'041004b0',
           [
-            StringStruct(u'CompanyName', u'Runner Scanner Open Source'),
+            StringStruct(u'CompanyName', u'Runner Scanner'),
             StringStruct(u'FileDescription', u'Runner Scanner - Verifica Iscrizioni e Risultati Podismo & Trail'),
             StringStruct(u'FileVersion', u'3.3.0.0'),
             StringStruct(u'InternalName', u'RunnerScanner'),
-            StringStruct(u'LegalCopyright', u'MIT License'),
+            StringStruct(u'LegalCopyright', u'Copyright (c) 2026 dnyrulez78'),
             StringStruct(u'OriginalFilename', u'RunnerScanner.exe'),
             StringStruct(u'ProductName', u'Runner Scanner'),
             StringStruct(u'ProductVersion', u'3.3.0')

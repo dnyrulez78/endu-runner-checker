@@ -946,7 +946,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="space-y-1">
                     <div class="flex items-center space-x-2">
                         <span class="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold text-xs uppercase border border-indigo-500/30">Scheda Atleta Federale</span>
-                        ${athlete.birth_date ? `<span class="text-xs text-slate-400 font-medium">&bull; Nato il ${escapeHtml(athlete.birth_date)}</span>` : ''}
+                        ${athlete.birth_date ? `<span class="text-xs text-slate-400 font-medium">&bull; ${escapeHtml(athlete.birth_date)}</span>` : ''}
                     </div>
                     <h3 class="text-2xl font-black tracking-tight text-white">${escapeHtml(athlete.name)}</h3>
                     <p class="text-sm text-slate-300 font-medium">Società: <span class="text-emerald-300 font-bold">${escapeHtml(athlete.society)}</span></p>
@@ -1189,6 +1189,39 @@ document.addEventListener("DOMContentLoaded", () => {
     if (paramAuto === "1" || paramAuto === "true") {
         setTimeout(() => searchForm.dispatchEvent(new Event("submit")), 300);
     }
+
+    // --- GESTIONE MODALE LICENZA & CONDIZIONI D'USO ---
+    const licenseModal = document.getElementById("licenseModal");
+    const btnOpenLicenseModal = document.getElementById("btnOpenLicenseModal");
+    const btnCloseLicenseModal = document.getElementById("btnCloseLicenseModal");
+    const btnConfirmLicenseModal = document.getElementById("btnConfirmLicenseModal");
+
+    function openLicenseModal() {
+        if (!licenseModal) return;
+        licenseModal.classList.remove("hidden");
+        lucide.createIcons();
+    }
+
+    function closeLicenseModal() {
+        if (!licenseModal) return;
+        licenseModal.classList.add("hidden");
+    }
+
+    if (btnOpenLicenseModal) btnOpenLicenseModal.addEventListener("click", openLicenseModal);
+    if (btnCloseLicenseModal) btnCloseLicenseModal.addEventListener("click", closeLicenseModal);
+    if (btnConfirmLicenseModal) btnConfirmLicenseModal.addEventListener("click", closeLicenseModal);
+
+    if (licenseModal) {
+        licenseModal.addEventListener("click", (e) => {
+            if (e.target === licenseModal) closeLicenseModal();
+        });
+    }
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && licenseModal && !licenseModal.classList.contains("hidden")) {
+            closeLicenseModal();
+        }
+    });
 
     function escapeHtml(str) {
         if (!str) return "";

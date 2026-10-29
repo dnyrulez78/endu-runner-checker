@@ -227,9 +227,9 @@ class FidalClient:
         soc_match = re.search(r'<span><a[^>]*>(.*?)</a></span>', html)
         society = soc_match.group(1).strip() if soc_match else "Non specificata"
 
-        # 3. Data di nascita
-        birth_match = re.search(r'<br>(\d{2}-\d{2}-\d{4})', html)
-        birth_date = birth_match.group(1).strip() if birth_match else None
+        # 3. Anno di nascita (Minimizzazione dati GDPR: omette giorno e mese esatti)
+        birth_match = re.search(r'<br>\d{2}-\d{2}-(\d{4})', html)
+        birth_date = f"Anno {birth_match.group(1)}" if birth_match else None
 
         # 4. Primati Personali (Table 6)
         personal_bests: List[FidalPersonalBest] = []

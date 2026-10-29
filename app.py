@@ -32,12 +32,17 @@ app = FastAPI(
     version="3.3.0"
 )
 
-# Abilita CORS per uso locale
+# Abilita CORS ristretto alle origini locali sicure
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "https://localhost:8000",
+        "https://127.0.0.1:8000",
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -145,6 +150,30 @@ async def refresh_calendar(months: int = Query(5, ge=1, le=12)):
     except Exception as e:
         logger.error(f"Errore durante l'aggiornamento del calendario: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/license")
+async def get_license_terms():
+    """Restituisce il testo integrale della Licenza d'Uso Personale."""
+    candidate_paths = [
+        os.path.join(BASE_DIR, "LICENSE"),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "LICENSE"),
+        os.path.join(os.getcwd(), "LICENSE"),
+    ]
+    if getattr(sys, '_MEIPASS', None):
+        candidate_paths.append(os.path.join(getattr(sys, '_MEIPASS'), "LICENSE"))
+
+    for p in candidate_paths:
+        if os.path.isfile(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    return {"success": True, "license": f.read()}
+            except Exception:
+                pass
+    return {
+        "success": True,
+        "license": "RUNNER SCANNER - PERSONAL USE ONLY LICENSE\nDestinato esclusivamente a persone fisiche per consultazioni personali e private."
+    }
 
 
 @app.get("/api/search", response_model=SearchResponse)

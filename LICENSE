@@ -7,19 +7,21 @@ Il presente software e la relativa documentazione (il "Software") sono concessi 
 2. RESTRIZIONI D'USO (RESTRICTIONS)
 È espressamente vietato utilizzare il Software:
 a) nell'esercizio, a supporto o per conto di attività aziendali, commerciali, professionali, associative, federali o istituzionali;
-b) per conto di società sportive, associazioni sportive dilettantistiche (ASD/SSD), enti di promozione sportiva o altre organizzazioni, con o senza scopo di lucro (l'appartenenza dell'utilizzatore a una società sportiva non impedisce l'uso strettamente personale, ma è categoricamente escluso l'uso per conto, a beneficio o nell'interesse della società o di terzi);
-c) per la raccolta sistematica, massiva o automatizzata di dati relativi ad atleti;
+b) per conto di società sportive, associazioni sportive dilettantistiche (ASD/SSD), enti di promozione sportiva o altre organizzazioni, con o senza scopo di lucro (l'appartenenza dell'utilizzatore a una società sportiva non impedisce l'uso strettamente personale; è categoricamente escluso l'uso nell'esercizio o a supporto di attività delle organizzazioni sopra indicate, anche se svolto da una persona fisica);
+c) per la raccolta massiva o sistematica di dati relativi ad atleti, oltre il recupero temporaneo necessario alla singola consultazione personale avviata dall'utilizzatore;
 d) per la creazione, l'aggiornamento o il mantenimento di archivi, banche dati o elenchi su persone terze;
-e) per il monitoraggio continuativo o automatizzato delle iscrizioni e delle attività di terzi;
+e) per il monitoraggio ricorrente, programmato o continuativo delle iscrizioni e delle attività di terzi;
 f) per finalità di marketing, profilazione, selezione, valutazione o altre finalità organizzative;
 g) per l'esposizione del programma come servizio web accessibile a terzi o l'integrazione in servizi destinati a organizzazioni;
 h) per la vendita, la cessione a pagamento o la distribuzione commerciale del Software o di sue versioni modificate.
+
+È consentito il recupero e l'elaborazione automatica temporanea delle informazioni strettamente necessari alla singola consultazione personale avviata dall'utilizzatore.
 
 3. DISPONIBILITÀ DEL CODICE E MODIFICHE (SOURCE AVAILABILITY & MODIFICATIONS)
 Il codice sorgente è reso disponibile per consentire la verifica, l'ispezione e l'esecuzione locale per Uso Personale. È consentito apportare modifiche al codice a condizione che qualsiasi copia o derivato mantenga inalterato il presente testo di licenza e rispetti integralmente le medesime condizioni e restrizioni per Uso Personale.
 
 4. ESCLUSIONE DI GARANZIA E RESPONSABILITÀ (DISCLAIMER OF WARRANTIES & LIABILITY)
-IL SOFTWARE È FORNITO "COSÌ COM'È" ("AS IS"), SENZA GARANZIE DI ALCUN TIPO, ESPLICITE O IMPLICITE, INCLUSE, A TITOLO ESEMPLIFICATIVO E NON ESAUSTIVO, LE GARANZIE IMPLICITE DI COMMERCIABILITÀ, IDONEITÀ PER UNO SCOPO PARTICOLARE E NON VIOLAZIONE. IN NESSUN CASO L'AUTORE O I TITOLARI DEL COPYRIGHT SARANNO RESPONSABILI PER QUALSIASI RIVENDICAZIONE, DANNO O ALTRA RESPONSABILITÀ DERIVANTE DA O IN CONNESSIONE CON IL SOFTWARE O IL SUO UTILIZZO.
+IL SOFTWARE È FORNITO "COSÌ COM'È" ("AS IS"), SENZA GARANZIE DI ALCUN TIPO, ESPLICITE O IMPLICITE, INCLUSE, A TITOLO ESEMPLIFICATIVO E NON ESAUSTIVO, LE GARANZIE IMPLICITE DI COMMERCIABILITÀ, IDONEITÀ PER UNO SCOPO PARTICOLARE E NON VIOLAZIONE. NEI LIMITI MASSIMI CONSENTITI DALLA LEGGE E SENZA PREGIUDIZIO PER LE RESPONSABILITÀ INDEROGABILI, IN NESSUN CASO L'AUTORE O I TITOLARI DEL COPYRIGHT SARANNO RESPONSABILI PER QUALSIASI RIVENDICAZIONE, DANNO DIRETTO, INDIRETTO O ALTRA RESPONSABILITÀ DERIVANTE DA O IN CONNESSIONE CON IL SOFTWARE O IL SUO UTILIZZO.
 
 5. PIATTAFORME TERZE E CONDIZIONI DEI PORTALI (THIRD-PARTY SERVICES)
 Runner Scanner è un progetto indipendente e non affiliato a ENDU, ICRON, Wedosport, FIDAL, Strava o altri gestori. Il programma facilita la consultazione personale di informazioni pubblicamente disponibili sulle piattaforme sorgenti, recuperandole ed elaborandole temporaneamente per la visualizzazione. Il presente accordo non conferisce alcun diritto sui dati dei portali e non sostituisce le condizioni d'uso delle piattaforme sorgenti né la normativa applicabile in materia di protezione dei dati (Regolamento UE 2016/679 - GDPR). L'utente è tenuto a rispettare le condizioni d'uso dei singoli portali e a non eludere protezioni o blocchi tecnici.

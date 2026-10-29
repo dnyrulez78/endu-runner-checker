@@ -11,6 +11,7 @@ BASE_DIR = os.path.abspath(SPECPATH)
 datas = [
     (os.path.join(BASE_DIR, 'frontend'), 'frontend'),
     (os.path.join(BASE_DIR, 'assets', 'icon.ico'), 'assets'),
+    (os.path.join(BASE_DIR, 'LICENSE'), '.'),
 ]
 
 hidden_imports = [

@@ -326,8 +326,87 @@
 
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
-        <p>Solo per uso personale e privato &bull; Vietato l'uso per conto di aziende, società sportive, associazioni o enti &bull; Consulta le condizioni d'uso</p>
+        <p class="space-x-1">
+            <span>Solo per uso personale e privato &bull; Vietato l'uso per conto di aziende, società sportive o enti &bull;</span>
+            <button type="button" id="btnOpenLicenseModal" class="underline hover:text-emerald-700 font-semibold text-slate-500 transition-colors cursor-pointer">
+                Licenza e Condizioni d'Uso
+            </button>
+        </p>
     </footer>
+
+    <!-- Modal Licenza e Condizioni d'Uso -->
+    <div id="licenseModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col border border-slate-100 overflow-hidden transform transition-all">
+            
+            <!-- Header Modal -->
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                        <i data-lucide="scale" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">Licenza & Condizioni d'Uso</h3>
+                        <p class="text-[11px] text-slate-400">Runner Scanner &bull; Personal Use Only License</p>
+                    </div>
+                </div>
+                <button type="button" id="btnCloseLicenseModal" class="w-8 h-8 rounded-lg hover:bg-slate-200/60 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <!-- Body Modal (Scrollable text) -->
+            <div class="p-6 overflow-y-auto space-y-4 text-xs text-slate-600 leading-relaxed font-sans" id="licenseModalBody">
+                <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-amber-900 font-medium">
+                    ⚠️ <b>Destinazione d'Uso Esclusiva</b>: Il presente software è concesso in licenza unicamente a <b>persone fisiche per finalità strettamente personali e private</b>. È vietato qualsiasi impiego per conto di società sportive, aziende, associazioni o enti.
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-slate-900 uppercase text-[11px] tracking-wider mb-1">1. Concessione della Licenza</h4>
+                    <p>Il presente software e la relativa documentazione (il "Software") sono concessi in licenza, non venduti, esclusivamente a persone fisiche per finalità strettamente personali e private ("Uso Personale").</p>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-slate-900 uppercase text-[11px] tracking-wider mb-1">2. Restrizioni d'Uso</h4>
+                    <p class="mb-1.5">È espressamente vietato utilizzare il Software:</p>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>nell'esercizio, a supporto o per conto di attività aziendali, commerciali, professionali, associative, federali o istituzionali;</li>
+                        <li>per conto di società sportive, associazioni sportive dilettantistiche (ASD/SSD), enti di promozione sportiva o altre organizzazioni, con o senza scopo di lucro (l'appartenenza dell'utilizzatore a una società sportiva non impedisce l'uso strettamente personale; è categoricamente escluso l'uso nell'esercizio o a supporto di attività delle organizzazioni sopra indicate, anche se svolto da una persona fisica);</li>
+                        <li>per la raccolta massiva o sistematica di dati relativi ad atleti, oltre il recupero temporaneo necessario alla singola consultazione personale avviata dall'utilizzatore;</li>
+                        <li>per la creazione, l'aggiornamento o il mantenimento di archivi, banche dati o elenchi su persone terze;</li>
+                        <li>per il monitoraggio ricorrente, programmato o continuativo delle iscrizioni e delle attività di terzi;</li>
+                        <li>per finalità di marketing, profilazione, selezione, valutazione o altre finalità organizzative;</li>
+                        <li>per l'esposizione del programma come servizio web accessibile a terzi o l'integrazione in servizi destinati a organizzazioni;</li>
+                        <li>per la vendita, la cessione a pagamento o la distribuzione commerciale del Software o di sue versioni modificate.</li>
+                    </ul>
+                    <p class="mt-2 text-emerald-700 bg-emerald-50 p-2.5 rounded-lg border border-emerald-100">
+                        ✓ <i>È consentito il recupero e l'elaborazione automatica temporanea delle informazioni strettamente necessari alla singola consultazione personale avviata dall'utilizzatore.</i>
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-slate-900 uppercase text-[11px] tracking-wider mb-1">3. Disponibilità del Codice e Modifiche</h4>
+                    <p>Il codice sorgente è reso disponibile per consentire la verifica, l'ispezione e l'esecuzione locale per Uso Personale. È consentito apportare modifiche al codice a condizione che qualsiasi copia o derivato mantenga inalterato il presente testo di licenza e rispetti integralmente le medesime condizioni e restrizioni per Uso Personale.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-slate-900 uppercase text-[11px] tracking-wider mb-1">4. Esclusione di Garanzia e Responsabilità</h4>
+                    <p>Il software è fornito "così com'è" ("AS IS"), senza garanzie di alcun tipo, esplicite o implicite. Nei limiti massimi consentiti dalla legge e senza pregiudizio per le responsabilità inderogabili, in nessun caso l'autore o i titolari del copyright saranno responsabili per qualsiasi rivendicazione, danno diretto, indiretto o altra responsabilità derivante da o in connessione con il software o il suo utilizzo.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-slate-900 uppercase text-[11px] tracking-wider mb-1">5. Piattaforme Terze e Condizioni dei Portali</h4>
+                    <p>Runner Scanner è un progetto indipendente e non affiliato a ENDU, ICRON, Wedosport, FIDAL, Strava o altri gestori. Il programma facilita la consultazione personale di informazioni pubblicamente disponibili sulle piattaforme sorgenti, recuperandole ed elaborandole temporaneamente per la visualizzazione. Il presente accordo non conferisce alcun diritto sui dati dei portali e non sostituisce le condizioni d'uso delle piattaforme sorgenti né la normativa applicabile in materia di protezione dei dati (Regolamento UE 2016/679 - GDPR). L'utente è tenuto a rispettare le condizioni d'uso dei singoli portali e a non eludere protezioni o blocchi tecnici.</p>
+                </div>
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="px-6 py-3 border-t border-slate-100 bg-slate-50 flex justify-end">
+                <button type="button" id="btnConfirmLicenseModal" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer">
+                    Chiudi
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- App JavaScript -->
     <script src="/static/app.js"></script>
