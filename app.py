@@ -47,8 +47,12 @@ icron_client = IcronClient(cache_ttl_seconds=3600, max_concurrency=8)
 wedosport_client = WedosportClient(cache_ttl_seconds=3600, max_concurrency=6)
 fidal_client = FidalClient(cache_ttl_seconds=3600)
 
+# Directory base dell'applicazione (gestisce sia esecuzione da sorgente che bundle PyInstaller)
+import sys
+BASE_DIR = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+
 # Monta le risorse statiche (CSS, JS)
-STATIC_DIR = os.path.join(os.path.dirname(__file__), "frontend", "static")
+STATIC_DIR = os.path.join(BASE_DIR, "frontend", "static")
 if os.path.exists(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
@@ -56,7 +60,7 @@ if os.path.exists(STATIC_DIR):
 @app.get("/", include_in_schema=False)
 async def serve_index():
     """Restituisce l'interfaccia web principale."""
-    index_path = os.path.join(os.path.dirname(__file__), "frontend", "index.html")
+    index_path = os.path.join(BASE_DIR, "frontend", "index.html")
     if not os.path.exists(index_path):
         raise HTTPException(status_code=404, detail="File frontend/index.html non trovato.")
     return FileResponse(index_path)

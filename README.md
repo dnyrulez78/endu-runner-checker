@@ -1,6 +1,6 @@
 # 🏃 Runner Scanner (v3.3)
 
-Applicazione web locale moderna, veloce e pulita (backend Python FastAPI + frontend HTML5/Tailwind CSS) progettata per podisti, atleti e società sportive per:
+Applicazione desktop e web locale moderna, veloce e pulita (disponibile sia come **eseguibile standalone portatile per Windows (.exe)** a zero configurazione, sia come codice sorgente Python FastAPI + frontend HTML5/Tailwind CSS) progettata per podisti, atleti e società sportive per:
 1. **Verificare a quali manifestazioni future di Corsa su Strada & Trail Running** (road running, trail, skyrunning) presenti su [ENDU](https://www.endu.net), [ICRON](https://www.icron.it) e [Wedosport](https://www.wedosport.net) un atleta o una squadra risulta iscritto, con supporto a filtro unificato o per singola piattaforma.
 2. **Consultare lo storico dei risultati e tempi di gara su ENDU**, con filtri mirati per data specifica e nome gara/città, con storico a ritroso fino a oltre 15 anni (dal 2010 ad oggi).
 3. **Interrogare l'Archivio Carriera Ufficiale FIDAL & gare storiche TDS**, risolvendo il recupero di tutte le manifestazioni competitive certificate non presenti su ENDU (cronometrate da TDS, TDS-Live, SDAM, WinningTime, Icron), visualizzando la scheda atleta federale, la società di appartenenza e i Primati Personali (PB).
@@ -15,6 +15,10 @@ Applicazione web locale moderna, veloce e pulita (backend Python FastAPI + front
 
 ## 🌟 Novità Versione 3.3 & Caratteristiche Principali
 
+- **Versione Desktop Standalone Portable Windows (`RunnerScanner.exe`)**:
+  - Applicazione a finestra autonoma nativa Windows (basata su Edge WebView2 integrato nel sistema) pronta all'uso senza dover installare Python, Java o altre dipendenze.
+  - Si avvia con un doppio clic, supporta il ridimensionamento a schermo intero e si arresta istantaneamente chiudendo la finestra con la classica **"X"** in alto a destra.
+  - **100% Portatile & Zero Tracce su Disco**: nessun installer, nessun file permanente creato e nessun dato salvato nel registro di sistema; tutto opera unicamente in memoria RAM volatile.
 - **Pulsante Scorciatoia "Cerca su Strava" (Novità v3.3)**:
   - Consente di aprire con un singolo clic la ricerca atleti ufficiale di Strava in una nuova scheda del browser per seguire o verificare le attività pubbliche dei podisti.
   - Presente sia accanto al nome di ogni singolo atleta nelle gare future e passate, sia all'interno dei riquadri anagrafici ufficiali (FIDAL e Wedosport).
@@ -57,10 +61,15 @@ Applicazione web locale moderna, veloce e pulita (backend Python FastAPI + front
 ```text
 C:\ENDU-Tool\
 ├── app.py                   # Entry point FastAPI e server web locale (v3.3)
-├── requirements.txt         # Dipendenze Python (fastapi, uvicorn, httpx)
-├── avvia_app.bat            # Script di avvio rapido con doppio clic (Windows)
+├── desktop_app.py           # Entry point finestra desktop nativa (WebView2)
+├── runner_scanner.spec      # Configurazione PyInstaller per bundling standalone
+├── compila_exe.bat          # Script per generare RunnerScanner.exe con 1 clic
+├── version_info.txt         # Metadati Windows PE dell'eseguibile (v3.3, copyright)
+├── requirements.txt         # Dipendenze Python (fastapi, uvicorn, httpx, pywebview)
+├── avvia_app.bat            # Script di avvio rapido web nel browser (Windows)
 ├── README.md                # Documentazione tecnica e guida operativa
 ├── assets\
+│   ├── icon.ico             # Icona applicazione Windows multi-risoluzione
 │   ├── screenshot.png       # Screenshot dell'interfaccia utente a 4 schede
 │   └── strava_button.png    # Dettaglio interfaccia del pulsante di ricerca Strava
 ├── backend\
@@ -83,61 +92,77 @@ C:\ENDU-Tool\
 
 ## 🚀 Guida Passo-Passo per l'Installazione e l'Avvio
 
-### ⚠️ Prerequisito su un Nuovo PC (Una tantum)
+Runner Scanner può essere utilizzato in **due modalità alternative**:
+
+### 📦 Metodo 1: Eseguibile Standalone Portatile (Consigliato per tutti gli utenti Windows)
+
+Se desideri utilizzare Runner Scanner come un normale programma Windows senza alcuna configurazione tecnica:
+
+1. **Scarica `RunnerScanner.exe`**:
+   - Scarica l'ultima versione precompilata dalla sezione [Releases](https://github.com/dnyrulez78/endu-runner-checker/releases) di GitHub.
+2. **Avvia il programma**:
+   - Fai doppio clic su **`RunnerScanner.exe`**.
+   - Si aprirà all'istante la finestra desktop autonoma di Runner Scanner.
+3. **Vantaggi e Caratteristiche**:
+   - **Zero Requisiti**: non richiede l'installazione di Python, Java o runtime esterni (funziona nativamente su qualsiasi PC con Windows 10 o Windows 11 tramite Edge WebView2 già presente nel sistema operativo).
+   - **100% Portatile**: puoi posizionare `RunnerScanner.exe` ovunque (sul Desktop, nella cartella Download o su una chiavetta USB). Non richiede diritti di amministratore.
+   - **Zero Residui**: non modifica il Registro di Windows né memorizza dati su disco; tutte le ricerche risiedono unicamente nella memoria RAM volatile.
+   - **Chiusura Pulita**: chiudendo la finestra con la classica **"X"** in alto a destra, l'applicazione e il server interno si spengono all'istante liberando completamente la memoria.
+   - **Link Esterni nel Tuo Browser**: cliccando sui pulsanti di classifica o su "Cerca su Strava", i collegamenti si aprono automaticamente nel tuo browser predefinito (Chrome, Edge, Firefox).
+
+---
+
+### 🐍 Metodo 2: Esecuzione da Codice Sorgente (Per sviluppatori o utenti Python)
+
+Se preferisci eseguire il codice sorgente o effettuare modifiche locali:
+
+#### ⚠️ Prerequisito su un Nuovo PC (Una tantum)
 Se stai aprendo il progetto su un computer dove **Python non è ancora presente**:
 1. Scarica Python dal sito ufficiale: 👉 [python.org/downloads](https://www.python.org/downloads/) (consigliato Python 3.11 o 3.12).
 2. **FONDAMENTALE**: Nella primissima schermata dell'installazione, spunta la casella in basso:
    **`[X] Add python.exe to PATH`**
 3. Clicca su **Install Now** e attendi il completamento.
-*(Se ti dimentichi questo passaggio, `avvia_app.bat` ti guiderà automaticamente aprendoti la pagina corretta).*
 
----
-
-### Metodo 1: Avvio Rapido con Doppio Clic (Consigliato su Windows)
-
-1. Apri la cartella del progetto (es. `C:\ENDU-Tool` oppure la cartella decompressa dallo ZIP).
-2. Fai **doppio clic** sul file **`avvia_app.bat`**.
-3. Lo script rileverà automaticamente Python, installerà le librerie necessarie (`fastapi`, `uvicorn`, `httpx`) e aprirà direttamente il browser su:
+#### Opzione A: Avvio rapido con doppio clic
+1. Fai doppio clic su **`avvia_app.bat`**.
+2. Lo script rileverà automaticamente Python, installerà le librerie necessarie e aprirà il browser all'indirizzo:
    👉 **`http://localhost:8000`**
 
----
-
-### Metodo 2: Avvio Manuale da Terminale (PowerShell o Prompt dei Comandi)
-
-#### Passo 1: Apri il Terminale nella cartella del progetto
-1. Premi il tasto `Windows + R`, digita `powershell` (o `cmd`) e premi **Invio**.
-2. Spostati nella cartella del progetto digitando:
+#### Opzione B: Avvio manuale da Terminale (PowerShell o CMD)
+1. Apri PowerShell nella cartella del progetto:
    ```powershell
    cd C:\ENDU-Tool
    ```
+2. Installa le librerie:
+   ```powershell
+   pip install -r requirements.txt
+   ```
+3. Avvia la versione desiderata:
+   - **Per la versione Web nel Browser**:
+     ```powershell
+     python app.py
+     ```
+     e apri `http://localhost:8000` nel browser.
+   - **Per la versione Finestra Desktop Nativa**:
+     ```powershell
+     python desktop_app.py
+     ```
 
-#### Passo 2: Installa le librerie necessarie
-Digita il seguente comando e premi **Invio**:
-```powershell
-pip install -r requirements.txt
-```
-*(Le librerie richieste sono solo 3: `fastapi`, `uvicorn`, `httpx`)*.
+---
 
-#### Passo 3: Avvia l'applicazione
-Digita il comando di avvio e premi **Invio**:
-```powershell
-python app.py
-```
+### 🔨 Come Ricompilare l'Eseguibile Windows da Soli (Opzionale)
 
-Vedrai comparire a schermo un messaggio simile a:
-```text
-============================================================
-  🏃 ENDU, ICRON & WEDOSPORT RUNNER SCANNER (STRADA & TRAIL) 🏃
-============================================================
-Server locale avviato con successo!
-Apri il tuo browser all'indirizzo: http://127.0.0.1:8000
-Premi CTRL+C per arrestare il server.
-============================================================
-```
+Se hai apportato modifiche al codice sorgente e desideri generare una nuova versione standalone di `RunnerScanner.exe`:
 
-#### Passo 4: Utilizza l'applicazione nel Browser
-Apri il tuo browser preferito e vai su:
-👉 **`http://localhost:8000`**
+1. Installa PyInstaller:
+   ```powershell
+   pip install pyinstaller pywebview
+   ```
+2. Fai **doppio clic** sul file **`compila_exe.bat`** oppure esegui da terminale:
+   ```powershell
+   pyinstaller runner_scanner.spec --clean --noconfirm
+   ```
+3. Il nuovo file compilato pronto per l'uso verrà salvato in `dist\RunnerScanner.exe`.
 
 ---
 
