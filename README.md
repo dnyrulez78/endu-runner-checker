@@ -99,7 +99,7 @@ Runner Scanner può essere utilizzato in **due modalità alternative**:
 Se desideri utilizzare Runner Scanner come un normale programma Windows senza alcuna configurazione tecnica:
 
 1. **Scarica `RunnerScanner.exe`**:
-   - Scarica l'ultima versione precompilata dalla sezione [Releases](https://github.com/dnyrulez78/endu-runner-checker/releases) di GitHub.
+   - Scarica l'ultima versione precompilata dalla sezione [Releases](https://github.com/dnyrulez78/runner-scanner/releases) di GitHub.
 2. **Avvia il programma**:
    - Fai doppio clic su **`RunnerScanner.exe`**.
    - Si aprirà all'istante la finestra desktop autonoma di Runner Scanner.
